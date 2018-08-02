@@ -8,11 +8,16 @@
   "scripts": {
     "watch": "webpack && start webpack --watch && electron .",
     "build": "webpack",
+    "quickstart": "webpack && electron .",
     "start": "electron ."
   },
   "dependencies": {
+    "electron-json-storage": "^4.1.1",
     "react": "^16.4.1",
-    "react-dom": "^16.4.1"
+    "react-dom": "^16.4.1",
+    "react-redux": "^5.0.7",
+    "react-spritesheet": "^1.0.1",
+    "redux": "^4.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.4.5",
@@ -28,6 +33,7 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "node-sass": "^4.8.3",
+    "redux-logger": "^3.0.6",
     "sass-loader": "^6.0.7",
     "semantic-ui-css": "^2.3.1",
     "style-loader": "^0.20.3",

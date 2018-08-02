@@ -63,6 +63,10 @@ module.exports = {
             }
         ],
     },
+    target: 'electron-main',
+    node: {
+        fs: 'empty'
+    },
     plugins: [
         new HtmlWebPackPlugin({
             template: "./src/index.html",
