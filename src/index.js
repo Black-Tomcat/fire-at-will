@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+
+import path from 'path';
 import Storage from 'electron-json-storage';
 
 // REDUX
@@ -25,6 +27,8 @@ const store = createStore(
 // Load in player save data here, pass to app or store as required.
 // TODO load directly into reducers
 let shipTemplates;
+
+Storage.setDataPath(path.resolve("./game_data"));
 Storage.set(
     "shipTemplates",
     {foo: "bar"},
@@ -39,7 +43,6 @@ Storage.set(
         )
     }
 );
-
 
 ReactDOM.render(
     <Provider store={store}>
