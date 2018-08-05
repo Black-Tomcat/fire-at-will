@@ -10,15 +10,27 @@ import App from './app.js';
 class GameCore {
     static MS_PER_UPDATE = 1000/60;
 
-    constructor() {
-        this.playing = true;
+    constructor(options={}) {
+        // REACT RENDERING PROPS
+        this.reactProps = {"foo": 100};
 
-        this.reactComponentOptions = {"foo": 100};
+        // GAME LOOP FIELD
         this.previous = new Date().getTime();
         this.lag = 0.0;
 
+        this.physicsComponents = [];
+        this.aiComponents = [];
+        this.renderComponents = [];
+
+        // CONFIG OPTIONS
+        this.config = {
+            debug: false,
+            ...options
+        };
+
+        //DEBUG CODE
         this.frames = 0;
-        this.frames_time = 0.0
+        this.frames_time = 0.0;
     }
 
     gameLoop = () => {
@@ -32,27 +44,36 @@ class GameCore {
             // elapsedTurns = Math.Floor(lag/GameCore.MS_PER_UPDATE) or somethign
             // this.updateGameState(elapsedTurns)
             this.lag -= GameCore.MS_PER_UPDATE;
-            this.updateGameState();
+            this.updateGameState(1);
         }
 
         this.renderGraphics();
-        this.frames += 1;
-        this.frames_time += elapsed;
-        if (this.frames_time >= 1000) {
-            this.frames_time -= 1000;
-            console.log("frames: ", this.frames);
-            this.frames = 0;
+        if (this.config.debug) {
+            this.frames += 1;
+            this.frames_time += elapsed;
+            if (this.frames_time >= 1000) {
+                this.frames_time -= 1000;
+                console.log("frames: ", this.frames);
+                this.frames = 0;
+            }
         }
-        setTimeout(this.gameLoop, 1)
+        setTimeout(this.gameLoop, 5) // TODO find appropriate numbers.
     };
 
-    updateGameState = () => {
-        this.reactComponentOptions["foo"] += 1;
+    updateGameState = (delta) => {
+        for (let physics in this.physicsComponents) {
+            physics.update(delta);
+        }
+
+        for (let ai in this.aiComponents) {
+            ai.update(delta);
+        }
     };
 
     renderGraphics = () => {
+        // TODO rip this out and trigger rerenders via state actions.
         ReactDOM.render(
-            <App options={this.reactComponentOptions}/>,
+            <App options={this.reactProps}/>,
             document.getElementById("react-entry")
         );
     };
@@ -78,10 +99,9 @@ class GameCore {
     }
 }
 
-ReactDOM.render(
-    <App options={{}}/>,
-    document.getElementById("react-entry")
+const gameCore = new GameCore(
+    {
+        debug: true
+    }
 );
-
-const gameCore = new GameCore();
 gameCore.gameLoop();
