@@ -1,14 +1,7 @@
-import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
+import GameComponent from "./gameComponent";
 
+export default class InputComponent extends GameComponent{
+    update(delta) {
 
-export default class InputComponent extends Component {
-    render() {
-        let menu = <div>Hey there gary, it's me</div>;
-        return ReactDOM.createPortal(
-            menu,
-            // INFO potentially change this.
-            document.getElementById("react-entry")
-        )
     }
 }

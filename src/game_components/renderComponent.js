@@ -1,6 +1,7 @@
-import React, {Component} from 'react';
+import GameComponent from "./gameComponent";
 
+export default class RenderComponent extends GameComponent{
+    update(delta) {
 
-export default class RenderComponent extends Component {
-
+    }
 }
