@@ -5,8 +5,16 @@ import path from 'path';
 import Storage from 'electron-json-storage';
 
 import App from './app.js';
+import Spaceship, {SpaceshipFactory} from "./game_components/objects/spaceship";
+import InputComponent from "./game_components/inputComponent";
+import PhysicsComponent from "./game_components/physicsComponent";
+import AIComponent from "./game_components/aiComponent";
+import RenderComponent from "./game_components/renderComponent";
+import GameComponent from "./game_components/gameComponent";
+import Fleet from "./game_components/objects/fleet";
 
 
+// USED FOR SKIRMISHES?
 class GameCore {
     static MS_PER_UPDATE = 1000/60;
 
@@ -20,6 +28,7 @@ class GameCore {
 
         this.physicsComponents = [];
         this.aiComponents = [];
+        this.inputComponents = [];
         this.renderComponents = [];
 
         // CONFIG OPTIONS
@@ -31,7 +40,46 @@ class GameCore {
         //DEBUG CODE
         this.frames = 0;
         this.frames_time = 0.0;
+
+        // GAME UTILITIES
+        this.spaceshipFactory = new SpaceshipFactory(this);
+
+        // GAME DATA
+        this.shipTemplates = null;
+
+        this.playerFleet = null;
+        this.fleets = [];
     }
+
+    start = () => {
+        this.loadShipTemplate();
+        this.setup();
+        this.gameLoop();
+    };
+
+    setup = () => {
+        // Create fleets
+        this.playerFleet = new Fleet(true);
+        this.fleets.push(new Fleet());
+
+        // Add new spaceships to each fleet.
+        this.playerFleet.addNewSpaceship(
+            this.spaceshipFactory.newSpaceship(
+                this.shipTemplates["shipTypeName"],
+                InputComponent,
+                null,
+                200, 200
+            )
+        );
+        this.fleets[0].addNewSpaceship(
+            this.spaceshipFactory.newSpaceship(
+                this.shipTemplates["shipTypeName"],
+                null,
+                AIComponent,
+                100, 300
+            )
+        );
+    };
 
     gameLoop = () => {
         let current = new Date().getTime();
@@ -71,7 +119,7 @@ class GameCore {
     };
 
     renderGraphics = () => {
-        // TODO rip this out and trigger rerenders via state actions.
+        // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
             <App options={this.reactProps}/>,
             document.getElementById("react-entry")
@@ -79,8 +127,6 @@ class GameCore {
     };
 
     loadShipTemplate() {
-        let shipTemplates;
-
         Storage.setDataPath(path.resolve("./game_data"));
         Storage.set(
             "shipTemplates",
@@ -91,12 +137,29 @@ class GameCore {
                     "shipTemplates",
                     (err, data) => {
                         if (err) throw err;
-                        shipTemplates = data;
+                        this.shipTemplates = data;
                     }
                 )
             }
         );
     }
+
+    addComponent = (component) => {
+        // TODO handle an array being passed in.
+        if (!(component instanceof GameComponent)) {
+            return;
+        }
+
+        if (component instanceof AIComponent) {
+            this.aiComponents.push(component);
+        } else if (component instanceof InputComponent) {
+            this.inputComponents.push(component);
+        } else if (component instanceof PhysicsComponent) {
+            this.physicsComponents.push(component);
+        } else if (component instanceof RenderComponent) {
+            this.renderComponents.push(component);
+        }
+    };
 }
 
 const gameCore = new GameCore(
@@ -104,4 +167,4 @@ const gameCore = new GameCore(
         debug: true
     }
 );
-gameCore.gameLoop();
+gameCore.start();

@@ -1,0 +1,17 @@
+{
+  "ships": {
+    "shipTypeName": {
+      "hitPoints": 1,
+      "maxVel": 1,
+      "sprite": "spriteName",
+      "patterns": ["patternName"]
+    }
+  },
+  "firingPatterns": {
+    "patternName": {
+      "ammoType": "ammoName",
+      "fireRate": 1,
+      "launcherAmount": 1
+    }
+  }
+}
