@@ -1,17 +1,23 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+const PIXI = require("pixi.js");
+
+import './css/app.sass';
+import sprites from "./assets/sprites.png";
 
 import path from 'path';
 import Storage from 'electron-json-storage';
 
 import App from './app.js';
-import Spaceship, {SpaceshipFactory} from "./game_components/objects/spaceship";
+import {SpaceshipFactory} from "./game_components/objects/spaceship";
+import Fleet from "./game_components/objects/fleet";
+
 import InputComponent from "./game_components/inputComponent";
 import PhysicsComponent from "./game_components/physicsComponent";
 import AIComponent from "./game_components/aiComponent";
 import RenderComponent from "./game_components/renderComponent";
 import GameComponent from "./game_components/gameComponent";
-import Fleet from "./game_components/objects/fleet";
+
 
 
 // USED FOR SKIRMISHES?
@@ -30,6 +36,9 @@ class GameCore {
         this.aiComponents = [];
         this.inputComponents = [];
         this.renderComponents = [];
+
+        this.pixiApp = null;
+        this.pixiResources = null;
 
         // CONFIG OPTIONS
         this.config = {
@@ -51,13 +60,58 @@ class GameCore {
         this.fleets = [];
     }
 
-    start = () => {
-        this.loadShipTemplate();
-        this.setup();
-        this.gameLoop();
+    start() {
+        const gameCallback = () => {
+            this.setupDummyGame();
+            this.gameLoop();
+        };
+
+        const spriteCallback = () => {
+            this.createStage(
+                gameCallback
+            );
+        };
+
+        this.loadGameData(
+            spriteCallback
+        );
     };
 
-    setup = () => {
+    loadGameData(loadedCallback) {
+        Storage.setDataPath(path.resolve("./game_data"));
+        // TODO Learn more about the async nature about this function.
+        Storage.get(
+            "shipTemplates",
+            (err, data) => {
+                if (err) throw err;
+                this.shipTemplates = data;
+                loadedCallback();
+            }
+        )
+    }
+
+    createStage = (loadedCallback) => {
+        this.pixiApp = new PIXI.Application({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+        const renderer = this.pixiApp.renderer;
+
+        renderer.autoResize = true;
+        renderer.view.style.position = "absolute";
+        renderer.view.style.display = "block";
+
+        PIXI.loader.add(
+            "galaca", sprites
+        ).load( () => {
+            this.pixiResources = PIXI.loader.resources;
+            loadedCallback();
+        });
+
+        document.body.appendChild(this.pixiApp.view);
+    };
+
+    setupDummyGame = () => {
         // Create fleets
         this.playerFleet = new Fleet(true);
         this.fleets.push(new Fleet());
@@ -65,20 +119,22 @@ class GameCore {
         // Add new spaceships to each fleet.
         this.playerFleet.addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
-                this.shipTemplates["shipTypeName"],
+                this.shipTemplates["ships"]["shipTypeName"],
                 InputComponent,
                 null,
-                200, 200
+                {x:200, y:200}
             )
         );
         this.fleets[0].addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
-                this.shipTemplates["shipTypeName"],
+                this.shipTemplates["ships"]["shipTypeName"],
                 null,
                 AIComponent,
-                100, 300
+                {x:0, y:0}
             )
         );
+
+        // Let the game run
     };
 
     gameLoop = () => {
@@ -92,10 +148,11 @@ class GameCore {
             // elapsedTurns = Math.Floor(lag/GameCore.MS_PER_UPDATE) or somethign
             // this.updateGameState(elapsedTurns)
             this.lag -= GameCore.MS_PER_UPDATE;
-            this.updateGameState(1);
+            this.updateGameState(GameCore.MS_PER_UPDATE);
         }
 
-        this.renderGraphics();
+        this.renderGraphics(this.lag);
+
         if (this.config.debug) {
             this.frames += 1;
             this.frames_time += elapsed;
@@ -105,44 +162,25 @@ class GameCore {
                 this.frames = 0;
             }
         }
-        setTimeout(this.gameLoop, 5) // TODO find appropriate numbers.
+
+        requestAnimationFrame(this.gameLoop) // TODO find appropriate numbers.
     };
 
     updateGameState = (delta) => {
-        for (let physics in this.physicsComponents) {
-            physics.update(delta);
-        }
+        for (let physics of this.physicsComponents) {physics.update(delta);}
 
-        for (let ai in this.aiComponents) {
-            ai.update(delta);
-        }
+        for (let ai of this.aiComponents) {ai.update(delta);}
     };
 
-    renderGraphics = () => {
+    renderGraphics = (delta) => {
+        for (let render of this.renderComponents) {render.update(delta)}
+
         // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
             <App options={this.reactProps}/>,
             document.getElementById("react-entry")
         );
     };
-
-    loadShipTemplate() {
-        Storage.setDataPath(path.resolve("./game_data"));
-        Storage.set(
-            "shipTemplates",
-            {foo: "bar"},
-            err => {
-                if (err) throw err;
-                Storage.get(
-                    "shipTemplates",
-                    (err, data) => {
-                        if (err) throw err;
-                        this.shipTemplates = data;
-                    }
-                )
-            }
-        );
-    }
 
     addComponent = (component) => {
         // TODO handle an array being passed in.
@@ -158,6 +196,9 @@ class GameCore {
             this.physicsComponents.push(component);
         } else if (component instanceof RenderComponent) {
             this.renderComponents.push(component);
+            this.pixiApp.stage.addChild(component.sprite);
+        } else {
+            throw new Error("HEEY, PUT THE COMPONENT IN.")
         }
     };
 }

@@ -6,9 +6,9 @@ import AIComponent from "../aiComponent";
 export default class Spaceship {
     constructor(
         type,
-        x,
-        y,
+        pos,
         vel,
+        spriteTexture,
 
         physicsComponent,
         renderComponent,
@@ -17,29 +17,32 @@ export default class Spaceship {
     ) {
         // SPACESHIP DATA
         this.type = type;
-        this.pos = {
-            x: x,
-            y: y
+        this.pos = pos;
+        this.vel = {
+            x: 20,
+            y: 0
         };
-        this.vel = vel;
 
         // SPACESHIP COMPONENTS
         this.physicsComponent = new physicsComponent(this);
-        this.renderComponent = new renderComponent(this);
+        this.renderComponent = new renderComponent(this, spriteTexture);
         this.inputComponent = (inputComponent != null) ?  new inputComponent(this) : null;
         this.aiComponent = (aiComponent != null) ?  new aiComponent(this) : null;
     }
 
     getComponents = () => {
         let components = [];
-        components.push(this.physicsComponent);
-        components.push(this.renderComponent);
-        if (this.inputComponent != null) {
-            components.push(this.inputComponent);
+        for (let component of [
+            this.physicsComponent,
+            this.renderComponent,
+            this.inputComponent,
+            this.aiComponent
+        ]) {
+            if (component != null) {
+                components.push(component);
+            }
         }
-        if (this.aiComponent != null) {
-            components.push(this.aiComponent);
-        }
+
         return components;
     }
 }
@@ -55,17 +58,17 @@ export class SpaceshipFactory {
 
         inputComponent = null,
         aiComponent = null,
-        x = 0,
-        y = 0,
-        vel = 0,
+        pos = {x: 0, y: 0},
+        vel = {x: 0, y: 0},
         physicsComponent = PhysicsComponent,
         renderComponent = RenderComponent,
     ) => {
+        const texture = this.gameCore.pixiResources[type.sprite].texture;
         let spaceship = new Spaceship(
             type,
-            x,
-            y,
+            pos,
             vel,
+            texture,
 
             physicsComponent,
             renderComponent,
@@ -73,7 +76,7 @@ export class SpaceshipFactory {
             aiComponent
         );
 
-        for (let component in spaceship.getComponents()) {
+        for (let component of spaceship.getComponents()) {
             this.gameCore.addComponent(component);
         }
 

@@ -3,7 +3,7 @@
     "shipTypeName": {
       "hitPoints": 1,
       "maxVel": 1,
-      "sprite": "spriteName",
+      "sprite": "galaca",
       "patterns": ["patternName"]
     }
   },
