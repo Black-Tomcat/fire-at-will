@@ -1,9 +1,25 @@
+// ./src/game_components/objects/spaceship.js
+// This contains the framework for the spaceship object and the relevant factory
+
 import PhysicsComponent from "../physicsComponent";
 import RenderComponent from "../renderComponent";
-import InputComponent from "../inputComponent";
-import AIComponent from "../aiComponent";
+
 
 export default class Spaceship {
+    /* The spaceship object.
+    This class is unique in the sense that it is only a container of data.
+    There should be little to no functionality attached to this, as it should
+    all be delegated through it's child components.
+
+    For example, physicsComponent should handle the updating of it's location
+    and checking for collisions, dealing damage, etc., while the AI handles all
+    the changes to velocity/firing patterns, and so on.
+
+    These components are then passed to the GameCore via the factory, where they
+    are updated in a streamlined manner which allows for faster performance.
+    The components have access to the parent's data due to the unique way they
+    are initialized. */
+
     constructor(
         type,
         pos,
@@ -15,6 +31,9 @@ export default class Spaceship {
         inputComponent = null,
         aiComponent = null
     ) {
+        // Components are initialized by passing a class into the xComponent
+        // parameter, which is then constructed to an instance saved in the class.
+
         // SPACESHIP DATA
         this.type = type;
         this.pos = pos;
@@ -31,6 +50,7 @@ export default class Spaceship {
     }
 
     getComponents = () => {
+        // returns components to the spaceshipFactory
         let components = [];
         for (let component of [
             this.physicsComponent,
@@ -48,6 +68,8 @@ export default class Spaceship {
 }
 
 export class SpaceshipFactory {
+    // The factory handles the creation of the class, ensuring it recieves the
+    // right components, and ensuring the gameCore also receives the components.
     constructor(gameCore) {
         this.gameCore = gameCore;
     }
