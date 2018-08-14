@@ -122,8 +122,10 @@ class GameCore {
         // Loading the sprites into the PIXI loader, then allowing access to
         // them at a classwide scope.
         PIXI.loader.add(
-            "galaca", sprites
-        ).load( () => {
+            "sprites", spritesheetJSON
+        ).load( (loader, resources) => {
+            const spritesheet = new PIXI.SpriteSheet(resources.sprites.baseTexture, spritesheetData);
+
             this.pixiResources = PIXI.loader.resources;
             loadedCallback();
         });
