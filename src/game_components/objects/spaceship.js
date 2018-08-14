@@ -3,6 +3,8 @@
 
 import PhysicsComponent from "../physicsComponent";
 import RenderComponent from "../renderComponent";
+import InputComponent from "../inputComponent";
+import aiComponent from "../aiComponent";
 
 
 export default class Spaceship {
@@ -19,6 +21,12 @@ export default class Spaceship {
     are updated in a streamlined manner which allows for faster performance.
     The components have access to the parent's data due to the unique way they
     are initialized. */
+    static defaultComponents = {
+        physicsComponent: PhysicsComponent,
+        renderComponent: RenderComponent,
+        inputComponent: InputComponent,
+        aiComponent: aiComponent,
+    };
 
     constructor(
         type,
@@ -26,24 +34,29 @@ export default class Spaceship {
         vel,
         spriteTexture,
 
-        physicsComponent,
-        renderComponent,
-        inputComponent = null,
-        aiComponent = null
+        fleet,
+
+        components
     ) {
-        // Components are initialized by passing a class into the xComponent
-        // parameter, which is then constructed to an instance saved in the class.
+        // Components are initialized by passing a collection of classes to the
+        // components parameter, and then defaults are added to that.
 
         // SPACESHIP DATA
         this.type = type;
         this.pos = pos;
         this.vel = vel;
 
+        // FLEET INFORMATION
+        this.fleet = fleet;
+
         // SPACESHIP COMPONENTS
-        this.physicsComponent = new physicsComponent(this);
-        this.renderComponent = new renderComponent(this, spriteTexture);
-        this.inputComponent = (inputComponent != null) ?  new inputComponent(this) : null;
-        this.aiComponent = (aiComponent != null) ?  new aiComponent(this) : null;
+        // merges the default components with their overriding components.
+        components = {...Spaceship.defaultComponents, ...components};
+
+        this.physicsComponent = new components.physicsComponent(this);
+        this.renderComponent = new components.renderComponent(this, spriteTexture);
+        this.inputComponent = new components.inputComponent(this);
+        this.aiComponent = new components.aiComponent(this);
     }
 
     getComponents = () => {
@@ -77,13 +90,12 @@ export class SpaceshipFactory {
     // each one individually.
     newSpaceship = (
         type,
+        fleet,
 
-        inputComponent = null,
-        aiComponent = null,
         pos = {x: 0, y: 0},
         vel = {x: 0, y: 0},
-        physicsComponent = PhysicsComponent,
-        renderComponent = RenderComponent,
+
+        components = {}
     ) => {
         const texture = this.gameCore.pixiTextures[type.sprite];
 
@@ -93,10 +105,9 @@ export class SpaceshipFactory {
             vel,
             texture,
 
-            physicsComponent,
-            renderComponent,
-            inputComponent,
-            aiComponent
+            fleet,
+
+            components
         );
 
         for (let component of spaceship.getComponents()) {

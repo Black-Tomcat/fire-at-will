@@ -160,8 +160,8 @@ class GameCore {
         this.playerFleet.addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
                 this.shipTemplates["ships"]["defensiveBullets"],
-                InputComponent,
-                null,
+                this.playerFleet,
+
                 {x:200, y:200}
             )
         );
@@ -169,9 +169,9 @@ class GameCore {
         this.fleets[0].addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
                 this.shipTemplates["ships"]["aggressiveRammer"],
-                null,
-                AIComponent,
-                {x:0, y:0}
+                this.fleets[0],
+
+                {x:0, y:0},
             )
         );
     };
