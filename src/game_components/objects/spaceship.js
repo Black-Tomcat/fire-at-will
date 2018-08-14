@@ -85,7 +85,8 @@ export class SpaceshipFactory {
         physicsComponent = PhysicsComponent,
         renderComponent = RenderComponent,
     ) => {
-        const texture = this.gameCore.pixiResources[type.sprite].texture;
+        const texture = this.gameCore.pixiTextures[type.sprite];
+
         let spaceship = new Spaceship(
             type,
             pos,

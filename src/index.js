@@ -8,6 +8,7 @@ const PIXI = require("pixi.js");
 
 import './css/app.sass';
 import sprites from "./assets/sprites.png";
+import spritesheetJSON from './assets/sprites.json';
 
 import path from 'path';
 import Storage from 'electron-json-storage';
@@ -23,8 +24,6 @@ import RenderComponent from "./game_components/renderComponent";
 import GameComponent from "./game_components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
-import {Button} from 'semantic-ui-react';
-
 
 
 class GameCore {
@@ -44,7 +43,7 @@ class GameCore {
         this.renderComponents = [];
 
         this.pixiApp = null;
-        this.pixiResources = null;
+        this.pixiTextures = null;
 
         // CONFIG OPTIONS
         this.config = {
@@ -94,14 +93,28 @@ class GameCore {
 
         Storage.setDataPath(path.resolve("./game_data"));
         // TODO Learn more about the async nature about this function.
-        Storage.get(
-            "shipTemplates",
-            (err, data) => {
-                if (err) throw err;
-                this.shipTemplates = data;
-                loadedCallback();
+        Storage.has("shipTemplates", (err, hasKey) => {
+            if (err) throw err;
+
+            if (!hasKey) {
+                Storage.get("exampleTemplates", (err, data) => {
+                    if (err) throw err;
+
+                    Storage.set("shipTemplates", data, (err) => {
+                        if (err) throw err;
+                    });
+                    this.shipTemplates = data;
+                    loadedCallback();
+                });
+            } else {
+                Storage.get("shipTemplates", (err, data) => {
+                    if (err) throw err;
+
+                    this.shipTemplates = data;
+                    loadedCallback();
+                })
             }
-        )
+        });
     }
 
     createStage = (loadedCallback) => {
@@ -122,11 +135,15 @@ class GameCore {
         // Loading the sprites into the PIXI loader, then allowing access to
         // them at a classwide scope.
         PIXI.loader.add(
-            "sprites", spritesheetJSON
+            "sprites", sprites
         ).load( (loader, resources) => {
-            const spritesheet = new PIXI.SpriteSheet(resources.sprites.baseTexture, spritesheetData);
+            const spritesheet = new PIXI.Spritesheet(resources["sprites"].texture.baseTexture, spritesheetJSON);
 
-            this.pixiResources = PIXI.loader.resources;
+            spritesheet.parse((sprites) => {
+                console.log(sprites);
+                this.pixiTextures = sprites;
+            });
+
             loadedCallback();
         });
 
