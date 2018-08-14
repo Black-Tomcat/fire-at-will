@@ -159,7 +159,7 @@ class GameCore {
         // Add new spaceships to each fleet.
         this.playerFleet.addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
-                this.shipTemplates["ships"]["shipTypeName"],
+                this.shipTemplates["ships"]["defensiveBullets"],
                 InputComponent,
                 null,
                 {x:200, y:200}
@@ -168,7 +168,7 @@ class GameCore {
 
         this.fleets[0].addNewSpaceship(
             this.spaceshipFactory.newSpaceship(
-                this.shipTemplates["ships"]["shipTypeName"],
+                this.shipTemplates["ships"]["aggressiveRammer"],
                 null,
                 AIComponent,
                 {x:0, y:0}

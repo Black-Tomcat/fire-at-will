@@ -1,10 +1,22 @@
 {
   "ships": {
-    "shipTypeName": {
-      "hitPoints": 1,
-      "maxVel": 1,
-      "sprite": "galaca",
-      "patterns": ["patternName"]
+    "defensiveBullets": {
+      "aiType": "DEFENSIVE",
+      "hitPoints": 50,
+      "maxVel": 50,
+      "sprite": "sprite_23",
+      "patterns": [
+        "patternName"
+      ]
+    },
+    "aggressiveRammer": {
+      "aiType": "AGGRESSIVE",
+      "hitPoints": 100,
+      "maxVel": 100,
+      "sprite": "sprite_19",
+      "patterns": [
+        "patternName"
+      ]
     }
   },
   "firingPatterns": {
