@@ -210,7 +210,9 @@ class GameCore {
 
         // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
-            <App options={this.reactProps}/>,
+            <App options={this.reactProps}>
+                {this.inputComponents.map(el => el.display())}
+            </App>,
             document.getElementById("react-entry")
         );
     };
