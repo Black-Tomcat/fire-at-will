@@ -37,10 +37,7 @@ export default class Spaceship {
         // SPACESHIP DATA
         this.type = type;
         this.pos = pos;
-        this.vel = {
-            x: 20,
-            y: 0
-        };
+        this.vel = vel;
 
         // SPACESHIP COMPONENTS
         this.physicsComponent = new physicsComponent(this);
@@ -75,6 +72,9 @@ export class SpaceshipFactory {
     }
 
     // TODO refactor signature
+    // TODO make it so all spaceships recieve an AI component and a stats component.
+    // TODO refractor so it just accepts a collection of components, rather than
+    // each one individually.
     newSpaceship = (
         type,
 
