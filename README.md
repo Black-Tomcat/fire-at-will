@@ -19,9 +19,9 @@ And probably much more to come.
 
 ## Decisions I've Made
 This is a section where I can put things I've thought about, and is probably likely to change. It's probably also a good staging ground for my thoughts, so best to keep that in mind.
-###Factories vs Inline creation | Resolution: Inline
+### Factories vs Inline creation | Resolution: Inline
 While Cohesion will likely suffer, the coupling is inherently decreased a large amount. The usage of inline creation also slightly increases coupling between each class and it's object, but due to the nature of hooking it up via the gameCore, it decreases it in a respective manner between gameCore and the game objects.
-#####Pros/Cons for Factories
+##### Pros/Cons for Factories
 Pros:
 - Delegate the need for things like sprite management within the constructor to the factory
 - Separate Game Object from the gameCore.
@@ -29,7 +29,7 @@ This may be redundant as PhysicsComponents may need access to the gameCore in or
 Cons:
 - Resource is allocated to the gameCore due to necessity
 - Singleton
-#####Pros/Cons for Inline
+##### Pros/Cons for Inline
 Pros:
 - Resource is constructed wherever it needs to be
 - Allows for shift to be done other
@@ -37,3 +37,10 @@ Cons
 - Constructor needs access to gameCore.
 Could also be necessary to be the case for components in the future.
 - Can become cumbersome and clunky
+
+## Technical Notes
+This project was created with a mix of React and a few other fancy features, including optional chaining. Below is a list of all syntactic sugars I've used.
+- React
+- ECMA 2016
+- Transforming Decorators with Babel, (IE, using the '@' notation)
+- Optional Chaining
