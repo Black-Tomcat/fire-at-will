@@ -60,4 +60,8 @@ export default class AIComponent extends GameComponent{
     updateStance = () => {
 
     }
+
+    toString = () => {
+        return "AIComponent::ParentClassMaybe?"
+    }
 }

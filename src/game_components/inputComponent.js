@@ -14,4 +14,8 @@ export default class InputComponent extends GameComponent{
     display() {
         return (this.isShowing && this.menuComponent)
     }
+
+    toString = () => {
+        return "InputComponent::ParentClassMaybe?"
+    }
 }

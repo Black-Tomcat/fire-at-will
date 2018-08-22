@@ -14,7 +14,8 @@ import path from 'path';
 import Storage from 'electron-json-storage';
 
 import App from './app.js';
-import {SpaceshipFactory} from "./game_components/objects/spaceship";
+
+import Spaceship from "./game_components/objects/spaceship";
 import Fleet from "./game_components/objects/fleet";
 
 import InputComponent from "./game_components/inputComponent";
@@ -54,9 +55,6 @@ class GameCore {
         //DEBUG CODE
         this.frames = 0;
         this.frames_time = 0.0;
-
-        // GAME UTILITIES
-        this.spaceshipFactory = new SpaceshipFactory(this);
 
         // GAME DATA
         this.shipTemplates = null;
@@ -158,20 +156,22 @@ class GameCore {
 
         // Add new spaceships to each fleet.
         this.playerFleet.addNewSpaceship(
-            this.spaceshipFactory.newSpaceship(
+            new Spaceship(
+                this,
                 this.shipTemplates["ships"]["defensiveBullets"],
-                this.playerFleet,
-
-                {x:200, y:200}
+                {x: 200, y: 200},
+                {x: 300, y:0}, // Approx. Bullet speed == 300
+                this.playerFleet
             )
         );
 
         this.fleets[0].addNewSpaceship(
-            this.spaceshipFactory.newSpaceship(
+            new Spaceship(
+                this,
                 this.shipTemplates["ships"]["aggressiveRammer"],
-                this.fleets[0],
-
                 {x:0, y:0},
+                {x:0, y:0},
+                this.fleets[0],
             )
         );
     };
@@ -223,7 +223,7 @@ class GameCore {
     };
 
     renderGraphics = (delta) => {
-        for (let render of this.renderComponents) {render.update(delta)}
+        for (let render of this.renderComponents) {render.update(delta, this)}
 
         // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
@@ -242,18 +242,15 @@ class GameCore {
             return;
         }
 
-        if (component instanceof AIComponent) {
-            this.aiComponents.push(component);
-        } else if (component instanceof InputComponent) {
-            this.inputComponents.push(component);
-        } else if (component instanceof PhysicsComponent) {
-            this.physicsComponents.push(component);
-        } else if (component instanceof RenderComponent) {
-            this.renderComponents.push(component);
-            this.pixiApp.stage.addChild(component.sprite);
-        } else {
-            throw new Error("HEEY, PUT THE COMPONENT IN.")
-        }
+        const componentMap = {
+            "AIComponent": this.aiComponents,
+            "InputComponent": this.inputComponents,
+            "PhysicsComponent": this.physicsComponents,
+            "RenderComponent": this.renderComponents
+        };
+        console.log("Component Type: " + component.toString().split("::")[0]);
+
+        componentMap[component.toString().split("::")[0]].push(component);
     };
 }
 

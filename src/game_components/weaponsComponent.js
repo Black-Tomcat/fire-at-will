@@ -7,4 +7,8 @@ export default class WeaponsComponent extends GameComponent{
 
     update(delta) {
     }
+
+    toString = () => {
+        return "WeaponsComponent::ParentClassMaybe?"
+    }
 }
