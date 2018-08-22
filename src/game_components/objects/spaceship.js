@@ -5,9 +5,10 @@ import PhysicsComponent from "../physicsComponent";
 import RenderComponent from "../renderComponent";
 import InputComponent from "../inputComponent";
 import aiComponent from "../aiComponent";
+import GameObject from "./gameObject";
 
 
-export default class Spaceship {
+export default class Spaceship extends GameObject {
     /* The spaceship object.
     This class is unique in the sense that it is only a container of data.
     There should be little to no functionality attached to this, as it should
@@ -28,18 +29,18 @@ export default class Spaceship {
         aiComponent: aiComponent,
     };
 
+    // Components are initialized by passing a collection of classes to the
+    // components parameter, and then defaults are added to that.
     constructor(
+        gameCore,
         type,
         pos,
         vel,
-        spriteTexture,
-
         fleet,
-
-        components
+        components = {}
     ) {
-        // Components are initialized by passing a collection of classes to the
-        // components parameter, and then defaults are added to that.
+        super();
+        const texture = gameCore.pixiTextures[type.sprite];
 
         // SPACESHIP DATA
         this.type = type;
@@ -54,66 +55,12 @@ export default class Spaceship {
         components = {...Spaceship.defaultComponents, ...components};
 
         this.physicsComponent = new components.physicsComponent(this);
-        this.renderComponent = new components.renderComponent(this, spriteTexture);
+        this.renderComponent = new components.renderComponent(this, texture);
         this.inputComponent = new components.inputComponent(this);
         this.aiComponent = new components.aiComponent(this);
-    }
 
-    getComponents = () => {
-        // returns components to the spaceshipFactory
-        let components = [];
-        for (let component of [
-            this.physicsComponent,
-            this.renderComponent,
-            this.inputComponent,
-            this.aiComponent
-        ]) {
-            if (component != null) {
-                components.push(component);
-            }
+        for (let component of this.getComponents(Spaceship.defaultComponents)) {
+            gameCore.addComponent(component);
         }
-
-        return components;
-    }
-}
-
-export class SpaceshipFactory {
-    // The factory handles the creation of the class, ensuring it recieves the
-    // right components, and ensuring the gameCore also receives the components.
-    constructor(gameCore) {
-        this.gameCore = gameCore;
-    }
-
-    // TODO refactor signature
-    // TODO make it so all spaceships recieve an AI component and a stats component.
-    // TODO refractor so it just accepts a collection of components, rather than
-    // each one individually.
-    newSpaceship = (
-        type,
-        fleet,
-
-        pos = {x: 0, y: 0},
-        vel = {x: 0, y: 0},
-
-        components = {}
-    ) => {
-        const texture = this.gameCore.pixiTextures[type.sprite];
-
-        let spaceship = new Spaceship(
-            type,
-            pos,
-            vel,
-            texture,
-
-            fleet,
-
-            components
-        );
-
-        for (let component of spaceship.getComponents()) {
-            this.gameCore.addComponent(component);
-        }
-
-        return spaceship
     }
 }
