@@ -30,7 +30,11 @@ module.exports = {
                         // presets: ['@babel/preset-env']
                         // plugins: ['@babel/plugin-transform-runtime']
                         presets: ['es2015', 'react', 'stage-0'],
-                        plugins: ['transform-decorators-legacy', 'transform-class-properties']
+                        plugins: [
+                            'transform-decorators-legacy',
+                            'transform-class-properties',
+                            'transform-optional-chaining'
+                        ]
                     }
                 },
                 exclude: /node_modules/
