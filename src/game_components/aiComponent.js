@@ -35,31 +35,39 @@ export default class AIComponent extends GameComponent{
         };
     }
 
-    aggressiveUpdate = () => {
+    aggressiveUpdate = (gameCore) => {
         // Ramming only method c:
+        const {fleets} = gameCore;
+
+        // Select an enemy ship to target.
+        // TODO check for the 'best' ship to target.
+        const enemyShip = fleets[0].spaceships[0];
+
+        if (enemyShip) {
+            parent.targetPos = enemyShip.pos;
+        }
+    };
+
+    defensiveUpdate = (gameCore) => {
 
     };
 
-    defensiveUpdate = () => {
+    retreatingUpdate = (gameCore) => {
 
     };
 
-    retreatingUpdate = () => {
-
-    };
-
-    update(delta, fleets) {
+    update(delta, gameCore) {
         // figure out stance. (Aggressive, Defensive, Passive?, Retreating)
         // Now, dependant on stance, update state of AI.
         this.updateStance();
 
         // Run that states update method
-        this.aiMap[this.stance]();
+        this.aiMap[this.stance](gameCore);
     }
 
     updateStance = () => {
 
-    }
+    };
 
     toString = () => {
         return "AIComponent::ParentClassMaybe?"

@@ -4,8 +4,9 @@
 import PhysicsComponent from "../physicsComponent";
 import RenderComponent from "../renderComponent";
 import InputComponent from "../inputComponent";
-import aiComponent from "../aiComponent";
+import AIComponent from "../aiComponent";
 import GameObject from "./gameObject";
+import WeaponsComponent from "../weaponsComponent";
 
 
 export default class Spaceship extends GameObject {
@@ -26,7 +27,8 @@ export default class Spaceship extends GameObject {
         physicsComponent: PhysicsComponent,
         renderComponent: RenderComponent,
         inputComponent: InputComponent,
-        aiComponent: aiComponent,
+        aiComponent: AIComponent,
+        weaponsComponent: WeaponsComponent
     };
 
     // Components are initialized by passing a collection of classes to the
@@ -43,12 +45,13 @@ export default class Spaceship extends GameObject {
         const texture = gameCore.pixiTextures[type.sprite];
 
         // SPACESHIP DATA
-        this.type = type;
-        this.pos = pos;
-        this.vel = vel;
+        this.type = type; // This contains all the data for the ship's class/weapons/etc.
+        this.pos = pos; // This is where the ship is currently
+        this.targetPos = null; // This is where the ship wants to head
+        this.vel = vel; // Ships velocity
 
         // FLEET INFORMATION
-        this.fleet = fleet;
+        this.fleet = fleet; // The fleet the ship is associated with.
 
         // SPACESHIP COMPONENTS
         // merges the default components with their overriding components.
@@ -58,6 +61,7 @@ export default class Spaceship extends GameObject {
         this.renderComponent = new components.renderComponent(this, texture);
         this.inputComponent = new components.inputComponent(this);
         this.aiComponent = new components.aiComponent(this);
+        this.weaponsComponent = new components.weaponsComponent(this);
 
         for (let component of this.getComponents(Spaceship.defaultComponents)) {
             gameCore.addComponent(component);

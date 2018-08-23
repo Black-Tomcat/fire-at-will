@@ -42,6 +42,7 @@ class GameCore {
         this.aiComponents = [];
         this.inputComponents = [];
         this.renderComponents = [];
+        this.weaponsComponents = [];
 
         this.pixiApp = null;
         this.pixiTextures = null;
@@ -219,7 +220,7 @@ class GameCore {
     updateGameState = (delta) => {
         for (let physics of this.physicsComponents) {physics.update(delta);}
 
-        for (let ai of this.aiComponents) {ai.update(delta);}
+        for (let ai of this.aiComponents) {ai.update(delta, this);}
     };
 
     renderGraphics = (delta) => {
@@ -246,7 +247,8 @@ class GameCore {
             "AIComponent": this.aiComponents,
             "InputComponent": this.inputComponents,
             "PhysicsComponent": this.physicsComponents,
-            "RenderComponent": this.renderComponents
+            "RenderComponent": this.renderComponents,
+            "WeaponsComponent": this.weaponsComponents
         };
         console.log("Component Type: " + component.toString().split("::")[0]);
 
