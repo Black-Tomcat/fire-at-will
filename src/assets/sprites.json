@@ -299,6 +299,10 @@
       "frame": {"x":0, "y":74, "w":96, "h":40},
       "spriteSourceSize": {"x":0,"y":0,"w":96,"h":40},
       "sourceSize": {"w":96,"h":40}
+    },
+    "bullet": {
+      "frame": {"x": 348, "y": 320, "w": 2, "h": 3},
+      "sourceSize": {"w":2,"h":3}
     }
 
   },
