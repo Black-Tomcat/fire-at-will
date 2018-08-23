@@ -43,4 +43,4 @@ This project was created with a mix of React and a few other fancy features, inc
 - React
 - ECMA 2016
 - Transforming Decorators with Babel, (IE, using the '@' notation)
-- Optional Chaining
+- Optional Chaining (the '?.' notation when looking up properties.)

@@ -27,13 +27,10 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        // presets: ['@babel/preset-env']
-                        // plugins: ['@babel/plugin-transform-runtime']
-                        presets: ['es2015', 'react', 'stage-0'],
+                        presets: ["@babel/preset-env", "@babel/preset-react"],
                         plugins: [
-                            'transform-decorators-legacy',
-                            'transform-class-properties',
-                            'transform-optional-chaining'
+                            'transform-optional-chaining',
+                            'transform-class-properties'
                         ]
                     }
                 },
