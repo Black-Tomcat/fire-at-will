@@ -27,10 +27,13 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["@babel/preset-env", "@babel/preset-react"],
+                        presets: [
+                            "@babel/preset-env",
+                            "@babel/preset-react",
+                        ],
                         plugins: [
-                            'transform-optional-chaining',
-                            'transform-class-properties'
+                            'transform-class-properties',
+                            ["@babel/plugin-proposal-optional-chaining", { "loose": false }]
                         ]
                     }
                 },

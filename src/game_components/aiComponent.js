@@ -41,7 +41,7 @@ export default class AIComponent extends GameComponent{
 
         // Select an enemy ship to target.
         // TODO check for the 'best' ship to target.
-        const enemyShip = fleets[0].spaceships[0];
+        const enemyShip = fleets?.[0].spaceships?.[0];
 
         if (enemyShip) {
             parent.targetPos = enemyShip.pos;
