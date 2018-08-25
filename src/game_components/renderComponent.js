@@ -5,10 +5,13 @@ export default class RenderComponent extends GameComponent{
     constructor(parent, spriteTexture){
         super(parent);
         this.sprite = new PIXI.Sprite(spriteTexture);
+
+        this.sprite.anchor.set(0.5, 0.5);
         this.sprite.position.set(
             this.parent.pos.x,
             this.parent.pos.y
         );
+
         this.active = false;
         this.visible = true
     }
@@ -18,6 +21,7 @@ export default class RenderComponent extends GameComponent{
             this.parent.pos.x,
             this.parent.pos.y
         );
+        this.sprite.rotation = (this.parent.rotation - 270) / 180 * Math.PI ;
 
         if (this.visible && !this.active) {
             this.active = true;

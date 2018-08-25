@@ -49,6 +49,7 @@ export default class Spaceship extends GameObject {
         this.pos = pos; // This is where the ship is currently
         this.targetPos = null; // This is where the ship wants to head
         this.vel = vel; // Ships velocity
+        this.rotation = 270; // All ships start facing down. (0 to 360], Clockwise from 9'oclock
 
         // FLEET INFORMATION
         this.fleet = fleet; // The fleet the ship is associated with.

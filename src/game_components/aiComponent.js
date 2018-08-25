@@ -44,7 +44,7 @@ export default class AIComponent extends GameComponent{
         const enemyShip = fleets?.[0].spaceships?.[0];
 
         if (enemyShip) {
-            parent.targetPos = enemyShip.pos;
+            this.parent.targetPos = enemyShip.pos;
         }
     };
 
