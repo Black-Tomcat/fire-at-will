@@ -1,7 +1,7 @@
 import GameComponent from "./gameComponent";
 
 export default class PhysicsComponent extends GameComponent{
-    static MAX_ACCELERATION = 10; // per second.
+    static MAX_ACCELERATION = 100; // per second.
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
 
@@ -41,7 +41,29 @@ export default class PhysicsComponent extends GameComponent{
     // TODO think more carefully about this, may cause some inconvenience with
     // ships already moving at an angle to the target. IE a ship moving to the west when target is south east.
     __changeVelocityToTarget = (delta, percentageThrust) => {
+        let {pos, targetPos} = this.parent;
+        const {MAX_ACCELERATION} = PhysicsComponent;
 
+        let toTargetVector = {
+            x: targetPos.x - pos.x,
+            y: targetPos.y - pos.y
+        };
+
+
+        toTargetVector = {
+            x: toTargetVector.x / Math.sqrt(toTargetVector.x ** 2 + toTargetVector.y ** 2),
+            y: toTargetVector.y / Math.sqrt(toTargetVector.x ** 2 + toTargetVector.y ** 2)
+        }
+
+        // * 90 / 180 * Math.PI
+        let xAccel = Math.sin(toTargetVector.x) * MAX_ACCELERATION * percentageThrust / 1000,
+            yAccel = Math.sin(toTargetVector.y) * MAX_ACCELERATION * percentageThrust / 1000;
+
+        console.log(xAccel, yAccel);
+
+        // TODO update velocity according to match the percentages, no just blindly dumping more into one or the other.
+        this.parent.vel.x += xAccel;
+        this.parent.vel.y += yAccel;
     };
 
     __changeRotationToTarget = (delta) => {
@@ -80,7 +102,6 @@ export default class PhysicsComponent extends GameComponent{
 
         // Return the difference in degrees.
         return rotationDifference
-
     };
 
     toString = () => {

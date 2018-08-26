@@ -37,11 +37,14 @@ export default class AIComponent extends GameComponent{
 
     aggressiveUpdate = (gameCore) => {
         // Ramming only method c:
-        const {fleets} = gameCore;
+        const {fleets, playerFleet} = gameCore;
+
+        let newFleets = [...fleets, playerFleet];
+        newFleets.splice(newFleets.indexOf(this.parent.fleet, 1));
 
         // Select an enemy ship to target.
         // TODO check for the 'best' ship to target.
-        const enemyShip = fleets?.[0].spaceships?.[0];
+        const enemyShip = newFleets?.[0].spaceships?.[0];
 
         if (enemyShip) {
             this.parent.targetPos = enemyShip.pos;

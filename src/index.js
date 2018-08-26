@@ -159,9 +159,9 @@ class GameCore {
         this.playerFleet.addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["ships"]["defensiveBullets"],
-                {x: 200, y: 200},
-                {x: 300, y:0}, // Approx. Bullet speed == 300
+                this.shipTemplates["ships"]["aggressiveRammer"],
+                {x: 100, y: 200},
+                {x: 0, y:0}, // Approx. Bullet speed == 300
                 this.playerFleet
             )
         );
@@ -169,8 +169,8 @@ class GameCore {
         this.fleets[0].addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["ships"]["aggressiveRammer"],
-                {x:0, y:0},
+                this.shipTemplates["ships"]["defensiveBullets"],
+                {x:400, y:400},
                 {x:0, y:0},
                 this.fleets[0],
             )
@@ -258,7 +258,7 @@ class GameCore {
 
 const gameCore = new GameCore(
     {
-        debug: true
+        debug: false
     }
 );
 gameCore.start();
