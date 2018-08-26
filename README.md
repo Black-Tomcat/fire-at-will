@@ -38,6 +38,38 @@ Cons
 Could also be necessary to be the case for components in the future.
 - Can become cumbersome and clunky
 
+---
+
+### Semi 4X vs Ship Creation Game vs Direct Control of Fleet | Resolution: 4X and Creation
+Creating the latter section first allows for the game to be polished in such a way that the 4X and story can be provided as a wrapper. Heavier emphasis on player control during battles may remove from the experience of the 4x.
+#### Pros/Cons for 4X
+Pros:
+- Can integrate with either Creation or Direct Control.
+- Adds a level of strategy on top
+- More easily integrate with story aspects.
+Cons: 
+- A hella lot more work
+- Integrating multiple systems like this may be worthy of another project completely.
+
+
+#### Pros/Cons for Creation Emphasis 
+Pros:
+- AI gameplay battles can be pretty cool.
+- Keeps the game simple.
+Cons: 
+- May require fancy graphics tools to ensure it works in a fulfilling manner
+- Still lacks my enjoyment for 4X
+- Kind of rubbish as a game by itself.
+
+#### Pros/Cons for Direct Control
+Pros: 
+- Can be more engaging
+Cons:
+- Can subtract from other experiences
+- Some sort of AI substitute will still have to be developed.
+- Still not as good just on it's own.
+
+
 ## Technical Notes
 This project was created with a mix of React and a few other fancy features, including optional chaining. Below is a list of all syntactic sugars I've used.
 - React
