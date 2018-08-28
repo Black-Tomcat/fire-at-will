@@ -52,7 +52,18 @@ export default class AIComponent extends GameComponent{
     };
 
     defensiveUpdate = (gameCore) => {
+        const {fleets, playerFleet} = gameCore;
 
+        let newFleets = [...fleets, playerFleet];
+        newFleets.splice(newFleets.indexOf(this.parent.fleet, 1));
+
+        const enemyShip = newFleets?.[0].spaceships?.[0];
+
+        if (enemyShip) {
+            this.parent.targetShip = enemyShip;
+        } else {
+            this.parent.targetShip = null;
+        }
     };
 
     retreatingUpdate = (gameCore) => {

@@ -6,6 +6,11 @@ export default class WeaponsComponent extends GameComponent{
     }
 
     update(delta) {
+        if (this.parent.targetShip == null) {
+            // TODO stop firing all guns.
+            return;
+        }
+        // TODO fire guns.
     }
 
     toString = () => {

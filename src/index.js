@@ -2,7 +2,7 @@
 // This is the core of the game. This consists of the gameloop, which handles
 // all updates to the game system as well as the rendering.
 
-import React, {Component} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 const PIXI = require("pixi.js");
 
@@ -18,10 +18,6 @@ import App from './app.js';
 import Spaceship from "./game_components/objects/spaceship";
 import Fleet from "./game_components/objects/fleet";
 
-import InputComponent from "./game_components/inputComponent";
-import PhysicsComponent from "./game_components/physicsComponent";
-import AIComponent from "./game_components/aiComponent";
-import RenderComponent from "./game_components/renderComponent";
 import GameComponent from "./game_components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
@@ -160,7 +156,7 @@ class GameCore {
             new Spaceship(
                 this,
                 this.shipTemplates["ships"]["aggressiveRammer"],
-                {x: 100, y: 200},
+                {x: 100, y: 400},
                 {x: 0, y:0}, // Approx. Bullet speed == 300
                 this.playerFleet
             )

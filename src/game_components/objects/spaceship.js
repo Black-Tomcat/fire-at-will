@@ -53,6 +53,7 @@ export default class Spaceship extends GameObject {
 
         // FLEET INFORMATION
         this.fleet = fleet; // The fleet the ship is associated with.
+        this.targetShip = null;
 
         // SPACESHIP COMPONENTS
         // merges the default components with their overriding components.

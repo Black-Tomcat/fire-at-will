@@ -53,7 +53,7 @@ export default class PhysicsComponent extends GameComponent{
         toTargetVector = {
             x: toTargetVector.x / Math.sqrt(toTargetVector.x ** 2 + toTargetVector.y ** 2),
             y: toTargetVector.y / Math.sqrt(toTargetVector.x ** 2 + toTargetVector.y ** 2)
-        }
+        };
 
         // * 90 / 180 * Math.PI
         let xAccel = Math.sin(toTargetVector.x) * MAX_ACCELERATION * percentageThrust / 1000,
