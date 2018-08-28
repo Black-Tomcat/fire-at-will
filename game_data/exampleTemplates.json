@@ -1,5 +1,16 @@
 {
   "ships": {
+    /*
+    "shipType": {
+      "aiType": enum (string),
+      "hitPoints": int,
+      "maxVel": int,
+      "sprite": enum (string),
+      "patterns": [
+        enum(s) (string)
+      ]
+    },
+    */
     "defensiveBullets": {
       "aiType": "DEFENSIVE",
       "hitPoints": 50,
@@ -19,7 +30,15 @@
       ]
     }
   },
+
   "firingPatterns": {
+    /*
+    "patternName": {
+      "ammoType": enum (string),
+      "fireRate": int,
+      "launcherAmount": int
+    },
+    */
     "patternName": {
       "ammoType": "ammoName",
       "fireRate": 1,
