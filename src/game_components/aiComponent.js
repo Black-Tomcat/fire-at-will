@@ -40,7 +40,7 @@ export default class AIComponent extends GameComponent{
         const {fleets, playerFleet} = gameCore;
 
         let newFleets = [...fleets, playerFleet];
-        newFleets.splice(newFleets.indexOf(this.parent.fleet, 1));
+        newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
 
         // Select an enemy ship to target.
         // TODO check for the 'best' ship to target.
@@ -55,7 +55,7 @@ export default class AIComponent extends GameComponent{
         const {fleets, playerFleet} = gameCore;
 
         let newFleets = [...fleets, playerFleet];
-        newFleets.splice(newFleets.indexOf(this.parent.fleet, 1));
+        newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
 
         const enemyShip = newFleets?.[0].spaceships?.[0];
 
