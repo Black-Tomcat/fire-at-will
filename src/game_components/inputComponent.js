@@ -1,8 +1,12 @@
 import GameComponent from "./gameComponent";
 
 export default class InputComponent extends GameComponent{
+    static requiredFields = [
+
+    ];
+
     constructor(parent, menuComponent) {
-        super(parent);
+        super(parent, InputComponent.requiredFields);
         this.isShowing = false;
         this.menuComponent = menuComponent;
     }

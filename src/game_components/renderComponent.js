@@ -2,8 +2,13 @@ import GameComponent from "./gameComponent";
 const PIXI = require("pixi.js");
 
 export default class RenderComponent extends GameComponent{
+    static requiredFields = [
+        "pos",
+        "rotation"
+    ];
+
     constructor(parent, spriteTexture){
-        super(parent);
+        super(parent, RenderComponent.requiredFields);
         this.sprite = new PIXI.Sprite(spriteTexture);
 
         this.sprite.anchor.set(0.5, 0.5);

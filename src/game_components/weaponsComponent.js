@@ -4,8 +4,15 @@ import Bullet from "../objects/bullet";
 import Spaceship from "../objects/spaceship";
 
 export default class WeaponsComponent extends GameComponent{
+    static requiredFields = [
+        "type",
+        "targetShip",
+        "activePatterns",
+        "ammo"
+    ];
+
     constructor(parent) {
-        super(parent);
+        super(parent, WeaponsComponent.requiredFields);
     }
 
     update(delta, gameCore) {
@@ -22,11 +29,6 @@ export default class WeaponsComponent extends GameComponent{
         }
         // TODO fire guns.
         // Assign all guns on.
-
-        if (targetShip === this.parent) {
-            throw new Error("WHY IS THIS HAPPENING?")
-        }
-
         for (let patternName in type.patternAmounts) {
             while (activePatterns[patternName].length < type.patternAmounts[patternName]){
                 let pattern = new Object(this.parent.type.firingPatterns[patternName]);

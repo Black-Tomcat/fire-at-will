@@ -8,8 +8,12 @@ const STANCES = {
 };
 
 export default class AIComponent extends GameComponent{
+    static requiredFields = [
+
+    ];
+
     constructor(parent) {
-        super(parent);
+        super(parent, AIComponent.requiredFields);
 
         const {AGGRESSIVE, DEFENSIVE, RETREATING} = STANCES;
         this.stance = null;

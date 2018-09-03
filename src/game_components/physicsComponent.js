@@ -5,6 +5,16 @@ export default class PhysicsComponent extends GameComponent{
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
 
+    static requiredFields = [
+        "pos",
+        "vel"
+    ];
+
+    constructor(parent) {
+        super(parent, PhysicsComponent.requiredFields);
+    }
+
+
     static getTargetVector = (currentPos, targetPos) => {
         return {
             x: targetPos.x - currentPos.x,
