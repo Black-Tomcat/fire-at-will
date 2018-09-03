@@ -1,0 +1,43 @@
+{
+  "type": {
+    "aiType": "AGGRESSIVE|DEFENSIVE|ETC.",
+    "hitPoints": 0,
+    "maxVel": 0,
+    "sprite": "sprite_01|sprite_02|etc.",
+    "patternAmount": {
+      "patternName": 0,
+      "patternName2": 0
+    },
+    "firingPatterns": {
+      "patternName": {},
+      "patternName2": {}
+    }
+  },
+  "fleet": {},
+
+  "pos": {"x": 0, "y": 0},
+  "targetPos": {"x": 0, "y": 0},
+  "vel": {"x": 0, "y": 0},
+  "rotation": 0,
+
+  "targetShip": {},
+  "activePatterns": {
+    "patternName": [
+      {
+        "ammoType": "ammoName",
+        "fireRate": 1,
+        "launcherAmount": 1,
+        "lastFired": 0,
+        "targetShip": {}
+      },
+    ],
+    "patternName2": []
+  },
+  "ammo": {},
+
+  "physicsComponent": {},
+  "renderComponent": {},
+  "inputComponent": {},
+  "aiComponent": {},
+  "weaponsComponent": {}
+}
