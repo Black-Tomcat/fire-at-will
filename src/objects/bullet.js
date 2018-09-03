@@ -30,5 +30,9 @@ export default class Bullet extends GameObject{
             gameCore.addComponent(component);
         }
     }
+
+    toString() {
+        return "Bullet"
+    }
 }
 

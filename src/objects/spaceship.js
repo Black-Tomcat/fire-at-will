@@ -69,4 +69,8 @@ export default class Spaceship extends GameObject {
             gameCore.addComponent(component);
         }
     }
+
+    toString() {
+        return "Spaceship"
+    }
 }

@@ -16,6 +16,6 @@ export default class InputComponent extends GameComponent{
     }
 
     toString = () => {
-        return "InputComponent::ParentClassMaybe?"
+        return "InputComponent::" + this.parent.toString().split("::")[0]
     }
 }

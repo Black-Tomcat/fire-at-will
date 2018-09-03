@@ -14,6 +14,6 @@ export default class WeaponsComponent extends GameComponent{
     }
 
     toString = () => {
-        return "WeaponsComponent::ParentClassMaybe?"
+        return "WeaponsComponent::" + this.parent.toString().split("::")[0]
     }
 }

@@ -15,8 +15,8 @@ import Storage from 'electron-json-storage';
 
 import App from './app.js';
 
-import Spaceship from "./game_components/objects/spaceship";
-import Fleet from "./game_components/objects/fleet";
+import Spaceship from "./objects/spaceship";
+import Fleet from "./objects/fleet";
 
 import GameComponent from "./game_components/gameComponent";
 
@@ -55,6 +55,7 @@ class GameCore {
 
         // GAME DATA
         this.shipTemplates = null;
+        this.firingPatternTemplates = null;
 
         this.playerFleet = null;
         this.fleets = [];
@@ -98,14 +99,16 @@ class GameCore {
                     Storage.set("shipTemplates", data, (err) => {
                         if (err) throw err;
                     });
-                    this.shipTemplates = data;
+                    this.shipTemplates = data["ships"];
+                    this.firingPatternTemplates = data["firingPatterns"];
                     loadedCallback();
                 });
             } else {
                 Storage.get("shipTemplates", (err, data) => {
                     if (err) throw err;
 
-                    this.shipTemplates = data;
+                    this.shipTemplates = data["ships"];
+                    this.firingPatternTemplates = data["firingPatterns"];
                     loadedCallback();
                 })
             }
@@ -155,8 +158,8 @@ class GameCore {
         this.playerFleet.addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["ships"]["aggressiveRammer"],
-                {x: 100, y: 400},
+                this.shipTemplates["aggressiveRammer"],
+                {x: 100, y: 100},
                 {x: 0, y:0}, // Approx. Bullet speed == 300
                 this.playerFleet
             )
@@ -165,9 +168,9 @@ class GameCore {
         this.fleets[0].addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["ships"]["defensiveBullets"],
+                this.shipTemplates["defensiveBullets"],
                 {x:400, y:400},
-                {x:0, y:0},
+                {x:0, y:-10},
                 this.fleets[0],
             )
         );
@@ -214,9 +217,11 @@ class GameCore {
     };
 
     updateGameState = (delta) => {
-        for (let physics of this.physicsComponents) {physics.update(delta);}
+        for (let physics of this.physicsComponents) {physics.update(delta, this);}
 
         for (let ai of this.aiComponents) {ai.update(delta, this);}
+
+        for (let weapons of this.weaponsComponents) {weapons.update(delta, this)}
     };
 
     renderGraphics = (delta) => {
@@ -236,7 +241,7 @@ class GameCore {
         // to be updated by it's relevant methods (renderGraphics or updateGameState)
         // TODO handle an array being passed in.
         if (!(component instanceof GameComponent)) {
-            return;
+            throw new Error("GameComponent not detected!");
         }
 
         const componentMap = {
@@ -246,15 +251,13 @@ class GameCore {
             "RenderComponent": this.renderComponents,
             "WeaponsComponent": this.weaponsComponents
         };
-        console.log("Component Type: " + component.toString().split("::")[0]);
-
         componentMap[component.toString().split("::")[0]].push(component);
     };
 }
 
 const gameCore = new GameCore(
     {
-        debug: false
+        debug: true
     }
 );
 gameCore.start();

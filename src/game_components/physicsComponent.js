@@ -59,8 +59,6 @@ export default class PhysicsComponent extends GameComponent{
         let xAccel = Math.sin(toTargetVector.x) * MAX_ACCELERATION * percentageThrust / 1000,
             yAccel = Math.sin(toTargetVector.y) * MAX_ACCELERATION * percentageThrust / 1000;
 
-        console.log(xAccel, yAccel);
-
         // TODO update velocity according to match the percentages, no just blindly dumping more into one or the other.
         this.parent.vel.x += xAccel;
         this.parent.vel.y += yAccel;
@@ -105,6 +103,6 @@ export default class PhysicsComponent extends GameComponent{
     };
 
     toString = () => {
-        return "PhysicsComponent::ParentClassMaybe?"
+        return "PhysicsComponent::" + this.parent.toString().split("::")[0]
     }
 }
