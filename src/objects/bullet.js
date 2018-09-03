@@ -1,6 +1,6 @@
-import GameComponent from "../gameComponent";
-import PhysicsComponent from "../physicsComponent";
-import RenderComponent from "../renderComponent";
+import GameComponent from "../game_components/gameComponent";
+import PhysicsComponent from "../game_components/physicsComponent";
+import RenderComponent from "../game_components/renderComponent";
 import GameObject from "./gameObject";
 
 export default class Bullet extends GameObject{
@@ -11,7 +11,7 @@ export default class Bullet extends GameObject{
 
     constructor(
         gameCore,
-        initialPos={x: 0, y: 0},
+        initialPos,
         vel,
 
 
@@ -22,9 +22,10 @@ export default class Bullet extends GameObject{
 
         this.pos = initialPos;
         this.vel = vel;
+        this.rotation = 45; // TODO change this so it fits.
 
         this.physicsComponent = new components.physicsComponent(this);
-        this.renderComponent = new components.renderComponent(this, gameCore.pixiTextures["sprite_01"])
+        this.renderComponent = new components.renderComponent(this, gameCore.pixiTextures["bullet"]);
 
         for (let component of this.getComponents(Bullet.defaultComponents)) {
             gameCore.addComponent(component);

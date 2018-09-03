@@ -1,12 +1,12 @@
 // ./src/game_components/objects/spaceship.js
 // This contains the framework for the spaceship object and the relevant factory
 
-import PhysicsComponent from "../physicsComponent";
-import RenderComponent from "../renderComponent";
-import InputComponent from "../inputComponent";
-import AIComponent from "../aiComponent";
+import PhysicsComponent from "../game_components/physicsComponent";
+import RenderComponent from "../game_components/renderComponent";
+import InputComponent from "../game_components/inputComponent";
+import AIComponent from "../game_components/aiComponent";
 import GameObject from "./gameObject";
-import WeaponsComponent from "../weaponsComponent";
+import WeaponsComponent from "../game_components/weaponsComponent";
 
 
 export default class Spaceship extends GameObject {
@@ -46,14 +46,29 @@ export default class Spaceship extends GameObject {
 
         // SPACESHIP DATA
         this.type = type; // This contains all the data for the ship's class/weapons/etc.
+
+        this.type.firingPatterns = {};
+        this.type.patternAmounts = new Object(this.type.patterns);
+        delete this.type.patterns;
+        for (let firingPattern in this.type.patternAmounts) {
+            this.type.firingPatterns[firingPattern] = gameCore.firingPatternTemplates[firingPattern];
+        }
+
+        this.fleet = fleet; // The fleet the ship is associated with.
+
+        // POSITION INFORMATION
         this.pos = pos; // This is where the ship is currently
         this.targetPos = null; // This is where the ship wants to head
         this.vel = vel; // Ships velocity
         this.rotation = 270; // All ships start facing down. (0 to 360], Clockwise from 9'oclock
 
-        // FLEET INFORMATION
-        this.fleet = fleet; // The fleet the ship is associated with.
-        this.targetShip = null;
+        // WEAPONS INFORMATION
+        this.targetShip = null; // The ship Object that is currently targeted.
+        this.activePatterns = {}; // The name of the pattern, and how many are active. The actual pattern info is stored in the type object.
+        for (let firingPattern in this.type.firingPatterns) {
+            this.activePatterns[firingPattern] = [];
+        }
+        this.ammo = {}; // TODO implement an ammo system. Potentially throw all of this into shipTemplates.
 
         // SPACESHIP COMPONENTS
         // merges the default components with their overriding components.
