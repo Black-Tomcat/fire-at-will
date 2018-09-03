@@ -5,7 +5,14 @@ export default class PhysicsComponent extends GameComponent{
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
 
-    update(delta) {
+    static getTargetVector = (currentPos, targetPos) => {
+        return {
+            x: targetPos.x - currentPos.x,
+            y: targetPos.y - currentPos.y
+        }
+    };
+
+    update(delta, gameCore) {
         let {pos, vel} = this.parent;
 
         if (this.parent?.targetPos) {
@@ -44,11 +51,7 @@ export default class PhysicsComponent extends GameComponent{
         let {pos, targetPos} = this.parent;
         const {MAX_ACCELERATION} = PhysicsComponent;
 
-        let toTargetVector = {
-            x: targetPos.x - pos.x,
-            y: targetPos.y - pos.y
-        };
-
+        let toTargetVector = PhysicsComponent.getTargetVector(pos, targetPos);
 
         toTargetVector = {
             x: toTargetVector.x / Math.sqrt(toTargetVector.x ** 2 + toTargetVector.y ** 2),
@@ -69,10 +72,7 @@ export default class PhysicsComponent extends GameComponent{
         let {pos, targetPos, rotation} = this.parent;
         const {MAX_ROTATION} = PhysicsComponent;
 
-        let toTargetVector = {
-            x: targetPos.x - pos.x,
-            y: targetPos.y - pos.y
-        };
+        let toTargetVector = PhysicsComponent.getTargetVector(pos, targetPos);
 
         // (-180 to 180]
         let angleDegrees = Math.atan2(toTargetVector.y, toTargetVector.x) * 180 / Math.PI;
