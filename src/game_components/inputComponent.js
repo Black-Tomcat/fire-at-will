@@ -20,6 +20,6 @@ export default class InputComponent extends GameComponent{
     }
 
     toString = () => {
-        return "InputComponent::" + this.parent.toString().split("::")[0]
+        return "inputComponent::" + this.parent.toString().split("::")[0]
     }
 }

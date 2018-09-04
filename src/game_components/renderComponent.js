@@ -42,6 +42,6 @@ export default class RenderComponent extends GameComponent{
     };
 
     toString = () => {
-        return "RenderComponent::" + this.parent.toString().split("::")[0]
+        return "renderComponent::" + this.parent.toString().split("::")[0]
     }
 }

@@ -251,14 +251,7 @@ class GameCore {
             throw new Error("GameComponent not detected!");
         }
 
-        const componentMap = {
-            "AIComponent": this.components.aiComponents,
-            "InputComponent": this.components.inputComponents,
-            "PhysicsComponent": this.components.physicsComponents,
-            "RenderComponent": this.components.renderComponents,
-            "WeaponsComponent": this.components.weaponsComponents
-        };
-        componentMap[component.toString().split("::")[0]].push(component);
+        this.components[component.toString().split("::")[0] + "s"].push(component);
     };
 }
 

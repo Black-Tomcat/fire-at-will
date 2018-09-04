@@ -113,6 +113,6 @@ export default class PhysicsComponent extends GameComponent{
     };
 
     toString = () => {
-        return "PhysicsComponent::" + this.parent.toString().split("::")[0]
+        return "physicsComponent::" + this.parent.toString().split("::")[0]
     }
 }

@@ -88,6 +88,6 @@ export default class AIComponent extends GameComponent{
     };
 
     toString = () => {
-        return "AIComponent::" + this.parent.toString().split("::")[0]
+        return "aiComponent::" + this.parent.toString().split("::")[0]
     }
 }
