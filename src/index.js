@@ -138,8 +138,13 @@ class GameCore {
             const spritesheet = new PIXI.Spritesheet(resources["sprites"].texture.baseTexture, spritesheetJSON);
 
             spritesheet.parse((sprites) => {
-                console.log(sprites);
-                this.pixiTextures = sprites;
+                this.pixiTextures = {};
+                for (let frame in spritesheetJSON.frames) {
+                    this.pixiTextures[frame] = {
+                        ...sprites[frame],
+                        boundingPoints: spritesheetJSON.frames[frame].boundingPoints
+                    }
+                }
             });
 
             loadedCallback();
