@@ -14,7 +14,6 @@ export default class PhysicsComponent extends GameComponent{
         super(parent, PhysicsComponent.requiredFields);
     }
 
-
     static getTargetVector = (currentPos, targetPos) => {
         return {
             x: targetPos.x - currentPos.x,

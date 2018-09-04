@@ -31,7 +31,7 @@ export default class GameCore {
         this.reactProps = {"foo": 100};
 
         // GAME LOOP FIELD
-        this.previous = new Date().getTime();
+        this.previous = null;
         this.lag = 0.0;
 
         this.components = {
@@ -59,8 +59,11 @@ export default class GameCore {
         this.shipTemplates = null;
         this.firingPatternTemplates = null;
 
-        this.playerFleet = null;
-        this.fleets = [];
+        this.objects = {
+            fleets: [],
+            spaceships: [],
+            bullets: [],
+        }
     }
 
     start() {
@@ -70,6 +73,7 @@ export default class GameCore {
 
         const gameCallback = () => {
             this.setupDummyGame();
+            this.previous = new Date().getTime();
             this.gameLoop();
         };
 
@@ -158,11 +162,11 @@ export default class GameCore {
 
     setupDummyGame = () => {
         // Create fleets
-        this.playerFleet = new Fleet(true);
-        this.fleets.push(new Fleet());
+        this.objects.fleets.push(new Fleet(true));
+        this.objects.fleets.push(new Fleet());
 
         // Add new spaceships to each fleet.
-        this.playerFleet.addNewSpaceship(
+        this.objects.fleets[0].addNewSpaceship(
             new Spaceship(
                 this,
                 this.shipTemplates["aggressiveRammer"],
@@ -172,7 +176,7 @@ export default class GameCore {
             )
         );
 
-        this.fleets[0].addNewSpaceship(
+        this.objects.fleets[1].addNewSpaceship(
             new Spaceship(
                 this,
                 this.shipTemplates["defensiveBullets"],
