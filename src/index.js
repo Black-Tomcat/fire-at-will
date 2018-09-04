@@ -34,11 +34,13 @@ class GameCore {
         this.previous = new Date().getTime();
         this.lag = 0.0;
 
-        this.physicsComponents = [];
-        this.aiComponents = [];
-        this.inputComponents = [];
-        this.renderComponents = [];
-        this.weaponsComponents = [];
+        this.components = {
+            physicsComponents: [],
+            aiComponents: [],
+            inputComponents: [],
+            renderComponents: [],
+            weaponsComponents: []
+        };
 
         this.pixiApp = null;
         this.pixiTextures = null;
@@ -222,20 +224,20 @@ class GameCore {
     };
 
     updateGameState = (delta) => {
-        for (let physics of this.physicsComponents) {physics.update(delta, this);}
+        for (let physics of this.components.physicsComponents) {physics.update(delta, this);}
 
-        for (let ai of this.aiComponents) {ai.update(delta, this);}
+        for (let ai of this.components.aiComponents) {ai.update(delta, this);}
 
-        for (let weapons of this.weaponsComponents) {weapons.update(delta, this)}
+        for (let weapons of this.components.weaponsComponents) {weapons.update(delta, this)}
     };
 
     renderGraphics = (delta) => {
-        for (let render of this.renderComponents) {render.update(delta, this)}
+        for (let render of this.components.renderComponents) {render.update(delta, this)}
 
         // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
             <App options={this.reactProps}>
-                {this.inputComponents.map(el => el.display())}
+                {this.components.inputComponents.map(el => el.display())}
             </App>,
             document.getElementById("react-entry")
         );
@@ -250,11 +252,11 @@ class GameCore {
         }
 
         const componentMap = {
-            "AIComponent": this.aiComponents,
-            "InputComponent": this.inputComponents,
-            "PhysicsComponent": this.physicsComponents,
-            "RenderComponent": this.renderComponents,
-            "WeaponsComponent": this.weaponsComponents
+            "AIComponent": this.components.aiComponents,
+            "InputComponent": this.components.inputComponents,
+            "PhysicsComponent": this.components.physicsComponents,
+            "RenderComponent": this.components.renderComponents,
+            "WeaponsComponent": this.components.weaponsComponents
         };
         componentMap[component.toString().split("::")[0]].push(component);
     };
