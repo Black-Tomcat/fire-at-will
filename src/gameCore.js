@@ -21,6 +21,7 @@ import Fleet from "./objects/fleet";
 import GameComponent from "./game_components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
+import GameObject from "./objects/gameObject";
 
 
 export default class GameCore {
@@ -162,8 +163,8 @@ export default class GameCore {
 
     setupDummyGame = () => {
         // Create fleets
-        this.objects.fleets.push(new Fleet(true));
-        this.objects.fleets.push(new Fleet());
+        new Fleet(this, true);
+        new Fleet(this);
 
         // Add new spaceships to each fleet.
         this.objects.fleets[0].addNewSpaceship(
@@ -172,7 +173,7 @@ export default class GameCore {
                 this.shipTemplates["aggressiveRammer"],
                 {x: 100, y: 100},
                 {x: 0, y:0}, // Approx. Bullet speed == 300
-                this.playerFleet
+                this.objects.fleets[0]
             )
         );
 
@@ -182,7 +183,7 @@ export default class GameCore {
                 this.shipTemplates["defensiveBullets"],
                 {x:400, y:400},
                 {x:0, y:-10},
-                this.fleets[0],
+                this.objects.fleets[1],
             )
         );
     };
@@ -257,4 +258,12 @@ export default class GameCore {
 
         this.components[component.toString().split("::")[0] + "s"].push(component);
     };
+
+    addGameObject = (object) => {
+        if (!(object instanceof GameObject)) {
+            throw new Error("GameObject not detected!")
+        }
+
+        this.objects[object.toString().split("::")[0] + "s"].push(object)
+    }
 }

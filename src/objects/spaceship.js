@@ -41,7 +41,7 @@ export default class Spaceship extends GameObject {
         fleet,
         components = {}
     ) {
-        super();
+        super(gameCore);
         const texture = gameCore.pixiTextures[type.sprite];
 
         // SPACESHIP DATA
@@ -86,6 +86,6 @@ export default class Spaceship extends GameObject {
     }
 
     toString() {
-        return "Spaceship"
+        return "spaceship"
     }
 }

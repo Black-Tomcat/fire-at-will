@@ -17,7 +17,7 @@ export default class Bullet extends GameObject{
 
         components
     ) {
-        super();
+        super(gameCore);
         components = {...Bullet.defaultComponents, ...components};
 
         this.pos = initialPos;
@@ -33,7 +33,7 @@ export default class Bullet extends GameObject{
     }
 
     toString() {
-        return "Bullet"
+        return "bullet"
     }
 }
 

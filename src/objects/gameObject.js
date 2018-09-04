@@ -3,6 +3,10 @@ export default class GameObject {
 
     };
 
+    constructor(gameCore) {
+        gameCore.addGameObject(this);
+    }
+
     getComponents = (defaultComponents) => {
         let components = [];
 

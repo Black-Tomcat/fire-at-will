@@ -1,8 +1,11 @@
-export default class Fleet {
+import gameObject from "./gameObject";
+
+export default class Fleet extends gameObject{
     constructor(
-        spaceships=[],
+        gameCore,
         player=false
     ) {
+        super(gameCore);
         this.player = player;
 
         this.spaceships = []
@@ -10,5 +13,9 @@ export default class Fleet {
 
     addNewSpaceship = (spaceship) => {
         this.spaceships.push(spaceship);
+    }
+
+    toString() {
+        return 'fleet';
     }
 }
