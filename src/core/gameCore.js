@@ -43,6 +43,7 @@ export default class GameCore {
             renderComponents: [],
             weaponsComponents: []
         };
+        this.physicsCore = new PhysicsCore(this);
 
         this.pixiApp = null;
         this.pixiTextures = null;
@@ -249,6 +250,7 @@ export default class GameCore {
         );
     };
 
+    // TODO Merge addComponent and addGameObject
     addComponent = (component) => {
         // Handles adding a specific component to the game core, in order for it
         // to be updated by it's relevant methods (renderGraphics or updateGameState)
@@ -257,7 +259,8 @@ export default class GameCore {
             throw new Error("GameComponent not detected!");
         }
 
-        this.components[component.toString().split("::")[0] + "s"].push(component);
+        const componentName = (component.toString().split("::")[0] + "s");
+        this.components[componentName].push(component);
     };
 
     addGameObject = (object) => {
@@ -265,6 +268,13 @@ export default class GameCore {
             throw new Error("GameObject not detected!")
         }
 
-        this.objects[object.toString().split("::")[0] + "s"].push(object)
+        const objectName = object.toString().split("::")[0] + "s";
+        this.objects[objectName].push(object);
+        if (objectName in [
+            "spaceships",
+            "bullets"
+        ]) {
+            this.physicsCore.addGameObject(object)
+        }
     }
 }
