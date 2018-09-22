@@ -3,6 +3,41 @@ A game about shooting lots of things in space.
 
 ---
 
+## Contributing
+Fire At Will is a game that is open to anyone adding features and contributing to the code. This project is designed to be a playground to let people test and develop their skills towards many different paths.  
+
+### Code of Conduct
+In short, do not disrespect, demean, bully, or otherwise threaten or hurt people under any circumstance, whether it be race, sexuality, gender, creed, experience, or any other property of person not specified here. This is a community that involves and embraces all people.
+
+### Open Development
+All development for this project goes through the GitHub. All persons working on this project are subject to the same procedures for code contributions.
+
+### Branch Organization
+While the master branch has not been in good shape as of recent, master will be soon reserved for builds that pass all tests and are able to be deployed to a working environment.
+
+If you are to send a pull request, please do so against master. Branches for other releases will be maintained seperately, but no pull requests will be accepeed for them. Features will be cherry picked from master and put into the latest stable major version.
+
+### Semantic Versioning
+This project does not follow semantic versioning yet.
+
+### Bugs
+Bugs should be submitted to the GitHub Issues. The best way to submit the bug would be to describe what happened and when it broke.
+
+### Proposing a Change
+If there is a requested change you wisht to see implemented, the best process would be to submit an issue. Talk with us before you start working on it seriously. 
+
+### Your First Pull Request
+
+### Sending a Pull Request
+
+### Contribution Prerequisites
+
+### Development Workflow
+
+### Style Guide
+
+---
+
 ## Getting Started
 1. Clone the repository.
 2. run `yarn` within the directory it was cloned to.
