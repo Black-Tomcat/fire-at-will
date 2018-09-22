@@ -1,6 +1,6 @@
-import GameComponent from "../game_components/gameComponent";
-import PhysicsComponent from "../game_components/physicsComponent";
-import RenderComponent from "../game_components/renderComponent";
+import GameComponent from "../components/gameComponent";
+import PhysicsComponent from "../components/physicsComponent";
+import RenderComponent from "../components/renderComponent";
 import GameObject from "./gameObject";
 
 export default class Bullet extends GameObject{
@@ -12,13 +12,13 @@ export default class Bullet extends GameObject{
     constructor(
         gameCore,
         initialPos,
+        // TODO turn to rotation and |vel| to make it easier to program bullets.
         vel,
-
 
         components
     ) {
-        super(gameCore);
         components = {...Bullet.defaultComponents, ...components};
+        super(gameCore);
 
         this.pos = initialPos;
         this.vel = vel;

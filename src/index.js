@@ -1,8 +1,8 @@
-import GameCore from './gameCore';
+import GameCore from './core/gameCore';
 
-const gameCore = new GameCore(
-    {
-        debug: true
-    }
-);
+let config = {
+    debug: true
+};
+
+const gameCore = new GameCore(config);
 gameCore.start();

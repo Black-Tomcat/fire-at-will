@@ -1,4 +1,4 @@
-// ./src/game_components/gameComponent.js
+// ./src/components/gameComponent.js
 
 export default class GameComponent {
     /* The core of a game component is that each should have a reference to the

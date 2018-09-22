@@ -1,12 +1,12 @@
-// ./src/game_components/objects/spaceship.js
+// ./src/components/objects/spaceship.js
 // This contains the framework for the spaceship object and the relevant factory
 
-import PhysicsComponent from "../game_components/physicsComponent";
-import RenderComponent from "../game_components/renderComponent";
-import InputComponent from "../game_components/inputComponent";
-import AIComponent from "../game_components/aiComponent";
+import PhysicsComponent from "../components/physicsComponent";
+import RenderComponent from "../components/renderComponent";
+import InputComponent from "../components/inputComponent";
+import AIComponent from "../components/aiComponent";
 import GameObject from "./gameObject";
-import WeaponsComponent from "../game_components/weaponsComponent";
+import WeaponsComponent from "../components/weaponsComponent";
 
 
 export default class Spaceship extends GameObject {

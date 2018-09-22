@@ -6,22 +6,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 const PIXI = require("pixi.js");
 
-import './css/app.sass';
-import sprites from "./assets/sprites.png";
-import spritesheetJSON from './assets/sprites.json';
+import '../css/app.sass';
+import sprites from "../assets/sprites.png";
+import spritesheetJSON from '../assets/sprites.json';
 
 import path from 'path';
 import Storage from 'electron-json-storage';
 
-import App from './app.js';
+import App from '../app.js';
 
-import Spaceship from "./objects/spaceship";
-import Fleet from "./objects/fleet";
+import Spaceship from "../objects/spaceship";
+import Fleet from "../objects/fleet";
 
-import GameComponent from "./game_components/gameComponent";
+import GameComponent from "../components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
-import GameObject from "./objects/gameObject";
+import GameObject from "../objects/gameObject";
+import PhysicsCore from "./physicsCore";
 
 
 export default class GameCore {
