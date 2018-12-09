@@ -15,12 +15,7 @@ Fire At Will is a game around something so taken for granted by science fiction.
 
 
 ---
-
-## Task
- - [ ] 
- - [ ] 
- - [ ] Semantic versioning
- - [ ] 
+ 
 ## Contributing
 Fire At Will is a game that is open to anyone adding features and contributing to the code. This project is designed to be a playground to let people test and develop their skills towards many different paths.  
 
@@ -40,16 +35,6 @@ Bugs should be submitted to the GitHub Issues. The best way to submit the bug wo
 
 ### Proposing a Change
 If there is a requested change you wisht to see implemented, the best process would be to submit an issue. Talk with us before you start working on it seriously. 
-
-### Your First Pull Request
-
-### Sending a Pull Request
-
-### Contribution Prerequisites
-
-### Development Workflow
-
-### Style Guide
 
 ---
 
