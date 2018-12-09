@@ -1,8 +1,26 @@
 # Fire At Will
-A game about shooting lots of things in space.
+
+[![](https://img.shields.io/github/license/Black-Tomcat/fire-at-will.svg)](https://github.com/Black-Tomcat/fire-at-will/blob/master/LICENSE)
+[![](https://img.shields.io/github/repo-size/Black-Tomcat/fire-at-will.svg)](https://github.com/Black-Tomcat/fire-at-will/)
+[![](https://img.shields.io/github/last-commit/Black-Tomcat/fire-at-will.svg)](https://github.com/Black-Tomcat/fire-at-will/)
+
+Fire At Will is a game around something so taken for granted by science fiction. Firing Patterns. In this game, you can control which bullets to fire, when or where they should detonate, their fire rate, and much more! This is also combined with a ship editor to give you full control over how you and your fleet approach a problem, rather then being binded to a set of ships and guns provided to you by the game.
+
+## Core Mechanics
+
+* **Fully Customisable Fire Patterns**
+* **Fully Customisable Ships**
+* **Develop Your Own Weapons**
+* ***And probably much more to come.***
+
 
 ---
 
+## Task
+ - [ ] 
+ - [ ] 
+ - [ ] Semantic versioning
+ - [ ] 
 ## Contributing
 Fire At Will is a game that is open to anyone adding features and contributing to the code. This project is designed to be a playground to let people test and develop their skills towards many different paths.  
 
@@ -16,9 +34,6 @@ All development for this project goes through the GitHub. All persons working on
 While the master branch has not been in good shape as of recent, master will be soon reserved for builds that pass all tests and are able to be deployed to a working environment.
 
 If you are to send a pull request, please do so against master. Branches for other releases will be maintained seperately, but no pull requests will be accepeed for them. Features will be cherry picked from master and put into the latest stable major version.
-
-### Semantic Versioning
-This project does not follow semantic versioning yet.
 
 ### Bugs
 Bugs should be submitted to the GitHub Issues. The best way to submit the bug would be to describe what happened and when it broke.
@@ -43,15 +58,6 @@ If there is a requested change you wisht to see implemented, the best process wo
 2. run `yarn` within the directory it was cloned to.
 3. run `yarn run quickstart` to webpack all needed files, and to run the electron shell
 
-## What This Is
-Fire At Will is a game around something so taken for granted by science fiction. Firing Patterns. In this game, you can control which bullets to fire, when or where they should detonate, their fire rate, and much more! This is also combined with a ship editor to give you full control over how you and your fleet approach a problem, rather then being binded to a set of ships and guns provided to you by the game.
-
-## Core Mechanics
-### Fully Customisable Fire Patterns 
-### Fully Customisable Ships
-### Develop Your Own Weapons
-And probably much more to come.
-
 ## Decisions I've Made
 This is a section where I can put things I've thought about, and is probably likely to change. It's probably also a good staging ground for my thoughts, so best to keep that in mind.
 ### Factories vs Inline creation | Resolution: Inline
@@ -61,14 +67,17 @@ Pros:
 - Delegate the need for things like sprite management within the constructor to the factory
 - Separate Game Object from the gameCore.
 This may be redundant as PhysicsComponents may need access to the gameCore in order to perform collision detection, etc.
+
 Cons:
 - Resource is allocated to the gameCore due to necessity
 - Singleton
+
 ##### Pros/Cons for Inline
 Pros:
 - Resource is constructed wherever it needs to be
 - Allows for shift to be done other
-Cons
+
+Cons:
 - Constructor needs access to gameCore.
 Could also be necessary to be the case for components in the future.
 - Can become cumbersome and clunky
@@ -82,6 +91,7 @@ Pros:
 - Can integrate with either Creation or Direct Control.
 - Adds a level of strategy on top
 - More easily integrate with story aspects.
+
 Cons: 
 - A hella lot more work
 - Integrating multiple systems like this may be worthy of another project completely.
@@ -91,6 +101,7 @@ Cons:
 Pros:
 - AI gameplay battles can be pretty cool.
 - Keeps the game simple.
+
 Cons: 
 - May require fancy graphics tools to ensure it works in a fulfilling manner
 - Still lacks my enjoyment for 4X
@@ -99,6 +110,7 @@ Cons:
 #### Pros/Cons for Direct Control
 Pros: 
 - Can be more engaging
+
 Cons:
 - Can subtract from other experiences
 - Some sort of AI substitute will still have to be developed.
