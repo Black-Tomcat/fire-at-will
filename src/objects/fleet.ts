@@ -1,8 +1,14 @@
 import gameObject from "./gameObject";
+import GameCore from "../core/gameCore";
+import Spaceship from "./spaceship";
+
 
 export default class Fleet extends gameObject{
+    private player: boolean;
+    public readonly spaceships: Spaceship[];
+
     constructor(
-        gameCore,
+        gameCore: GameCore,
         player=false
     ) {
         super(gameCore);
@@ -11,9 +17,9 @@ export default class Fleet extends gameObject{
         this.spaceships = []
     }
 
-    addNewSpaceship = (spaceship) => {
+    addNewSpaceship = (spaceship: Spaceship) => {
         this.spaceships.push(spaceship);
-    }
+    };
 
     toString() {
         return 'fleet';

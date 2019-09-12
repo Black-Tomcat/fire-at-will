@@ -4,34 +4,76 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-const PIXI = require("pixi.js");
+import {Application, Spritesheet, Texture, BaseTexture, Loader, LoaderResource} from "pixi.js";
 
-import '../css/app.sass';
+import '../css/app.css';
 import sprites from "../assets/sprites.png";
 import spritesheetJSON from '../assets/sprites.json';
 
 import path from 'path';
-import Storage from 'electron-json-storage';
+import App from '../App';
 
-import App from '../app.js';
+import Spaceship, {FiringPatternType, ShipType} from "../objects/spaceship";
 
-import Spaceship from "../objects/spaceship";
 import Fleet from "../objects/fleet";
-
 import GameComponent from "../components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
+
 import GameObject from "../objects/gameObject";
 import PhysicsCore from "./physicsCore";
+import PhysicsComponent, {Vector} from "../components/physicsComponent";
+import AIComponent from "../components/aiComponent";
+import InputComponent from "../components/inputComponent";
+import RenderComponent from "../components/renderComponent";
+import WeaponsComponent from "../components/weaponsComponent";
+import Bullet from "../objects/bullet";
 
+// const Storage = window.require('electron-json-storage');
+
+
+interface GameCoreConfig {
+    debug: boolean;
+}
+
+
+interface ShipTemplates {
+    [propName: string]: ShipType
+}
+
+interface FiringPatternTemplates {
+    [propName: string]: FiringPatternType;
+}
+
+type Components = "physicsComponents" | "aiComponents" | "inputComponents" | "renderComponents" | "weaponsComponents"
 
 export default class GameCore {
-    static MS_PER_UPDATE = 1000/60;
+    static MS_PER_UPDATE = 1000 / 60;
 
-    constructor(options={}) {
-        // REACT RENDERING PROPS
-        this.reactProps = {"foo": 100};
+    public pixiTextures: { [propName: string]: Texture } | null;
+    public pixiApp: Application;
+    public readonly objects: {
+        fleets: Fleet[];
+        spaceships: Spaceship[];
+        bullets: Bullet[];
+    };
+    private previous: number | null;
+    private lag: number;
+    private components: {
+        physicsComponents: PhysicsComponent[];
+        aiComponents: AIComponent[];
+        inputComponents: InputComponent[],
+        renderComponents: RenderComponent[],
+        weaponsComponents: WeaponsComponent[]
+    };
+    private physicsCore: PhysicsCore;
+    private config: GameCoreConfig;
+    private frames: number;
+    private frames_time: number;
+    private readonly shipTemplates: null | ShipTemplates;
+    private firingPatternTemplates: null | FiringPatternTemplates;
 
+    constructor(options: GameCoreConfig) {
         // GAME LOOP FIELD
         this.previous = null;
         this.lag = 0.0;
@@ -45,7 +87,10 @@ export default class GameCore {
         };
         this.physicsCore = new PhysicsCore(this);
 
-        this.pixiApp = null;
+        this.pixiApp = new Application({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
         this.pixiTextures = null;
 
         // CONFIG OPTIONS
@@ -59,8 +104,31 @@ export default class GameCore {
         this.frames_time = 0.0;
 
         // GAME DATA
-        this.shipTemplates = null;
-        this.firingPatternTemplates = null;
+        this.firingPatternTemplates = {
+            "patternName": {
+                "ammoType": "ammoName",
+                "fireRate": 5,
+                "launcherAmount": 1
+            }
+        };
+        this.shipTemplates = {
+            "defensiveBullets": {
+                aiType: "DEFENSIVE",
+                hitPoints: 50,
+                maxVel: 50,
+                sprite: "sprite_23",
+                patterns: [[5, this.firingPatternTemplates['patternName']]]
+            },
+            "aggressiveRammer": {
+                aiType: "AGGRESSIVE",
+                hitPoints: 100,
+                maxVel: 100,
+                sprite: "sprite_19",
+                patterns: [
+                    [1, this.firingPatternTemplates['patternName']]
+                ]
+            }
+        };
 
         this.objects = {
             fleets: [],
@@ -69,10 +137,10 @@ export default class GameCore {
         }
     }
 
-    start() {
+    start = async () => {
         // Initialize a game, currently done statically
-        // TODO change this so it fits with a dynamic, potentially file loaded
-        // system.
+        // TODO change this so it fits with a dynamic, potentially file loaded system.
+
 
         const gameCallback = () => {
             this.setupDummyGame();
@@ -86,53 +154,14 @@ export default class GameCore {
             );
         };
 
-        this.loadGameData(
-            spriteCallback
-        );
+        spriteCallback();
     };
 
-    loadGameData(loadedCallback) {
-        // Loads all the game.json data into the game dynamically.
-        // Also allows for saving the game data, which wouldn't be possible with
-        // the 'import ... from ...' notation.
 
-        Storage.setDataPath(path.resolve("./game_data"));
-        // TODO Learn more about the async nature about this function.
-        Storage.has("shipTemplates", (err, hasKey) => {
-            if (err) throw err;
-
-            if (!hasKey) {
-                Storage.get("exampleTemplates", (err, data) => {
-                    if (err) throw err;
-
-                    Storage.set("shipTemplates", data, (err) => {
-                        if (err) throw err;
-                    });
-                    this.shipTemplates = data["ships"];
-                    this.firingPatternTemplates = data["firingPatterns"];
-                    loadedCallback();
-                });
-            } else {
-                Storage.get("shipTemplates", (err, data) => {
-                    if (err) throw err;
-
-                    this.shipTemplates = data["ships"];
-                    this.firingPatternTemplates = data["firingPatterns"];
-                    loadedCallback();
-                })
-            }
-        });
-    }
-
-    createStage = (loadedCallback) => {
+    createStage = (loadedCallback: () => void) => {
         // Creates a PIXI application that allows for the rendering of sprites.
         // Also handles the generation of sprites, and frees the resource to be
         // Used by the spaceship factory.
-
-        this.pixiApp = new PIXI.Application({
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
         const renderer = this.pixiApp.renderer;
 
         renderer.autoResize = true;
@@ -141,16 +170,17 @@ export default class GameCore {
 
         // Loading the sprites into the PIXI loader, then allowing access to
         // them at a classwide scope.
-        PIXI.loader.add(
+        this.pixiApp.loader.add(
             "sprites", sprites
-        ).load( (loader, resources) => {
-            const spritesheet = new PIXI.Spritesheet(resources["sprites"].texture.baseTexture, spritesheetJSON);
+        ).load((loader: Loader, resources) => {
+            const spritesheet = new Spritesheet((resources["sprites"] as LoaderResource).texture.baseTexture, spritesheetJSON);
 
             spritesheet.parse((sprites) => {
                 this.pixiTextures = {};
                 for (let frame in spritesheetJSON.frames) {
                     this.pixiTextures[frame] = {
                         ...sprites[frame],
+                        // @ts-ignore
                         boundingPoints: spritesheetJSON.frames[frame].boundingPoints
                     }
                 }
@@ -172,9 +202,9 @@ export default class GameCore {
         this.objects.fleets[0].addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["aggressiveRammer"],
+                (this.shipTemplates as ShipTemplates)["aggressiveRammer"],
                 {x: 100, y: 100},
-                {x: 0, y:0}, // Approx. Bullet speed == 300
+                {x: 0, y: 0}, // Approx. Bullet speed == 300
                 this.objects.fleets[0]
             )
         );
@@ -182,9 +212,9 @@ export default class GameCore {
         this.objects.fleets[1].addNewSpaceship(
             new Spaceship(
                 this,
-                this.shipTemplates["defensiveBullets"],
-                {x:400, y:400},
-                {x:0, y:-10},
+                (this.shipTemplates as ShipTemplates)["defensiveBullets"],
+                {x: 400, y: 400},
+                {x: 0, y: -10},
                 this.objects.fleets[1],
             )
         );
@@ -197,14 +227,13 @@ export default class GameCore {
 
         // Calculate lag (how much time has passed since the last game update.
         let current = new Date().getTime();
-        let elapsed = current - this.previous;
+        let elapsed = current - (this.previous ? this.previous : 0);
         this.previous = current;
         this.lag += elapsed;
 
         // If lag is greater than the 1/60th of a second, update the game.
         // Continue to do this while the lag is higher than that.
         while (this.lag >= GameCore.MS_PER_UPDATE) {
-            // TODO update by a set number of 'turns' to increase performace
             // elapsedTurns = Math.Floor(lag/GameCore.MS_PER_UPDATE) or somethign
             // this.updateGameState(elapsedTurns)
             this.lag -= GameCore.MS_PER_UPDATE;
@@ -230,20 +259,28 @@ export default class GameCore {
         requestAnimationFrame(this.gameLoop) // TODO find appropriate numbers.
     };
 
-    updateGameState = (delta) => {
-        for (let physics of this.components.physicsComponents) {physics.update(delta, this);}
+    updateGameState = (delta: number) => {
+        for (let physics of this.components.physicsComponents) {
+            physics.update(delta, this);
+        }
 
-        for (let ai of this.components.aiComponents) {ai.update(delta, this);}
+        for (let ai of this.components.aiComponents) {
+            ai.update(delta, this);
+        }
 
-        for (let weapons of this.components.weaponsComponents) {weapons.update(delta, this)}
+        for (let weapons of this.components.weaponsComponents) {
+            weapons.update(delta, this)
+        }
     };
 
-    renderGraphics = (delta) => {
-        for (let render of this.components.renderComponents) {render.update(delta, this)}
+    renderGraphics = (delta: number) => {
+        for (let render of this.components.renderComponents) {
+            render.update(delta, this)
+        }
 
         // TODO rip this out and trigger re-renders via state actions.
         ReactDOM.render(
-            <App options={this.reactProps}>
+            <App>
                 {this.components.inputComponents.map(el => el.display())}
             </App>,
             document.getElementById("react-entry")
@@ -251,29 +288,23 @@ export default class GameCore {
     };
 
     // TODO Merge addComponent and addGameObject
-    addComponent = (component) => {
+    addComponent = (component: GameComponent) => {
         // Handles adding a specific component to the game core, in order for it
         // to be updated by it's relevant methods (renderGraphics or updateGameState)
         // TODO handle an array being passed in.
-        if (!(component instanceof GameComponent)) {
-            throw new Error("GameComponent not detected!");
-        }
-
         const componentName = (component.toString().split("::")[0] + "s");
+        // @ts-ignore
         this.components[componentName].push(component);
     };
 
-    addGameObject = (object) => {
-        if (!(object instanceof GameObject)) {
-            throw new Error("GameObject not detected!")
-        }
-
+    addGameObject = (object: GameObject) => {
         const objectName = object.toString().split("::")[0] + "s";
+        // @ts-ignore
         this.objects[objectName].push(object);
         if (objectName in [
             "spaceships",
-            "bullets"
         ]) {
+            // @ts-ignore
             this.physicsCore.addGameObject(object)
         }
     }

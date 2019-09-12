@@ -1,7 +1,19 @@
-export default class PhysicsCore {
-    static GRIDSIZE = 100;
+import GameCore from "./gameCore";
+import {Vector} from "../components/physicsComponent";
+import GameObject from "../objects/gameObject";
 
-    constructor(gameCore) {
+export default class PhysicsCore {
+    private gameCore: GameCore;
+
+    static GRIDSIZE = 100;
+    private bulletsGrid: {
+        [propName: string]: any
+    };
+    private objectsGrid: {
+        [propName: string]: any
+    };
+
+    constructor(gameCore: GameCore) {
         this.gameCore = gameCore;
 
         this.bulletsGrid = {
@@ -34,21 +46,21 @@ export default class PhysicsCore {
     };
 
 
-    addObject = (object) => {
-        const gridNum = this.calculateGridNum(object.parent.pos);
+    addObject = (object: GameObject & {pos: Vector}) => {
+        const gridNum = this.calculateGridNum(object.pos);
 
         if (object.toString().split("::")[0] === "bullet") {
-            if (!this.bulletsGrid[gridNum]?.push(object) ) {
+            if (!this.bulletsGrid[gridNum].push(object) ) {
                 this.bulletsGrid[gridNum] = [object]
             }
         } else {
-            if (!this.objectsGrid[gridNum]?.push(object) ) {
+            if (!this.objectsGrid[gridNum].push(object) ) {
                 this.objectsGrid[gridNum] = [object]
             }
         }
     };
 
-    calculateGridNum = (pos) => {
+    calculateGridNum = (pos: Vector) => {
           return (Math.floor(pos.x / 100) * 100) + ", " + (Math.floor(pos.y / 100) * 100)
     };
 }

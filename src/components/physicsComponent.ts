@@ -1,39 +1,48 @@
 import GameComponent from "./gameComponent";
+import GameObject from "../objects/gameObject";
+import GameCore from "../core/gameCore";
 
-export default class PhysicsComponent extends GameComponent{
+
+export interface Vector {x: number; y: number}
+
+interface ParentType {
+    pos: Vector,
+    vel: Vector
+    rotation: number
+    targetPos?: Vector
+}
+
+export default class PhysicsComponent<Parent extends ParentType & GameObject = ParentType & GameObject> extends GameComponent<Parent>{
     static MAX_ACCELERATION = 100; // per second.
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
 
-    static requiredFields = [
-        "pos",
-        "vel"
-    ];
-
-    constructor(parent) {
-        super(parent, PhysicsComponent.requiredFields);
+    constructor(parent: Parent) {
+        super(parent);
     }
 
-    static getTargetVector = (currentPos, targetPos) => {
+    static getTargetVector = (currentPos: Vector, targetPos: Vector) => {
         return {
             x: targetPos.x - currentPos.x,
             y: targetPos.y - currentPos.y
         }
     };
 
-    update(delta, gameCore) {
+    update(delta: number, gameCore: GameCore) {
         let {pos, vel} = this.parent;
 
-        if (this.parent?.targetPos) {
-            this.__moveToPosition(delta);
+        if (this.parent.targetPos != undefined) {
+            if (this.__moveToPosition(delta, this.parent.targetPos) === null) {
+                this.parent.targetPos = undefined;
+            };
         }
 
         this.parent.pos.x = pos.x + (vel.x * delta/1000);
         this.parent.pos.y = pos.y + (vel.y * delta/1000);
     }
 
-    __moveToPosition = (delta) => {
-        let {pos, targetPos, vel} = this.parent;
+    __moveToPosition = (delta: number, targetPos: Vector): void | null =>  {
+        let {pos, vel} = this.parent;
         const {BOUNDING_BOX} = PhysicsComponent;
 
         // Once pos is close enough to target pos, delete target pos
@@ -44,20 +53,19 @@ export default class PhysicsComponent extends GameComponent{
             targetPos.y - BOUNDING_BOX <= pos.y &&
             pos.y <= targetPos.y + BOUNDING_BOX
         ) {
-            targetPos = null;
-            return;
+            return null;
         }
 
         // percentageThrust is how much of main engines can be used to push the ship forwards.
         // Should be positive cosine only of the angle of the ship from the target.
-        const percentageThrust = Math.max(Math.cos(this.__changeRotationToTarget(delta) / 180 * Math.PI), 0);
-        this.__changeVelocityToTarget(delta, percentageThrust)
+        const percentageThrust = Math.max(Math.cos(this.__changeRotationToTarget(delta, targetPos) / 180 * Math.PI), 0);
+        this.__changeVelocityToTarget(delta, percentageThrust, targetPos)
     };
 
     // TODO think more carefully about this, may cause some inconvenience with
     // ships already moving at an angle to the target. IE a ship moving to the west when target is south east.
-    __changeVelocityToTarget = (delta, percentageThrust) => {
-        let {pos, targetPos} = this.parent;
+    __changeVelocityToTarget = (delta: number, percentageThrust: number, targetPos: Vector) => {
+        let {pos} = this.parent;
         const {MAX_ACCELERATION} = PhysicsComponent;
 
         let toTargetVector = PhysicsComponent.getTargetVector(pos, targetPos);
@@ -76,9 +84,9 @@ export default class PhysicsComponent extends GameComponent{
         this.parent.vel.y += yAccel;
     };
 
-    __changeRotationToTarget = (delta) => {
+    __changeRotationToTarget = (delta: number, targetPos: Vector) => {
         // Return amount of radians till facing target
-        let {pos, targetPos, rotation} = this.parent;
+        let {pos, rotation} = this.parent;
         const {MAX_ROTATION} = PhysicsComponent;
 
         let toTargetVector = PhysicsComponent.getTargetVector(pos, targetPos);

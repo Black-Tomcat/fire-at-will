@@ -1,15 +1,23 @@
 import GameComponent from "./gameComponent";
-const PIXI = require("pixi.js");
+import {Sprite, Texture} from "pixi.js";
+import GameObject from "../objects/gameObject";
+import {Vector} from "./physicsComponent";
+import GameCore from "../core/gameCore";
 
-export default class RenderComponent extends GameComponent{
-    static requiredFields = [
-        "pos",
-        "rotation"
-    ];
 
-    constructor(parent, spriteTexture){
-        super(parent, RenderComponent.requiredFields);
-        this.sprite = new PIXI.Sprite(spriteTexture);
+interface ParentType {
+    pos: Vector;
+    rotation: number;
+}
+
+export default class RenderComponent<Parent extends ParentType & GameObject = ParentType & GameObject> extends GameComponent<Parent> {
+    private readonly sprite: PIXI.Sprite;
+    private active: boolean;
+    private visible: boolean;
+
+    constructor(parent: Parent, spriteTexture: Texture){
+        super(parent);
+        this.sprite = new Sprite(spriteTexture);
 
         this.sprite.anchor.set(0.5, 0.5);
         this.sprite.position.set(
@@ -21,7 +29,7 @@ export default class RenderComponent extends GameComponent{
         this.visible = true
     }
 
-    update(delta, gameCore) {
+    update(delta: number, gameCore: GameCore) {
         this.sprite.position.set(
             this.parent.pos.x,
             this.parent.pos.y

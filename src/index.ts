@@ -1,3 +1,4 @@
+// ENTRY POINT TO PROGRAM
 import GameCore from './core/gameCore';
 
 let config = {
