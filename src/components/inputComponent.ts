@@ -1,14 +1,15 @@
+import GameCore from "../core/gameCore";
 import GameComponent from "./gameComponent";
 import GameObject from "../objects/gameObject";
 
-interface ParentType {
+interface ParentType extends GameObject{
 }
 
-export default class InputComponent<Parent extends ParentType & GameObject = ParentType> extends GameComponent{
+export default class InputComponent<Parent extends ParentType = ParentType> extends GameComponent{
     // private isShowing: boolean;
 
     constructor(parent: Parent) {
-        super(parent);
+        super(parent, "InputComponent");
         // this.isShowing = false;
         // this.menuComponent = menuComponent;
     }
@@ -21,7 +22,5 @@ export default class InputComponent<Parent extends ParentType & GameObject = Par
         // return (this.isShowing && this.menuComponent)
     }
 
-    toString = () => {
-        return "inputComponent::" + this.parent.toString().split("::")[0]
-    }
+    cleanUp(gameCore: GameCore): void {}
 }

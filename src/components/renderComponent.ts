@@ -1,22 +1,22 @@
 import GameComponent from "./gameComponent";
 import {Sprite, Texture} from "pixi.js";
 import GameObject from "../objects/gameObject";
-import {Vector} from "./physicsComponent";
+import {XYObj} from "./physicsComponent";
 import GameCore from "../core/gameCore";
 
 
-interface ParentType {
-    pos: Vector;
+interface ParentType extends GameObject{
+    pos: XYObj;
     rotation: number;
 }
 
-export default class RenderComponent<Parent extends ParentType & GameObject = ParentType & GameObject> extends GameComponent<Parent> {
+export default class RenderComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
     private readonly sprite: PIXI.Sprite;
     private active: boolean;
     private visible: boolean;
 
     constructor(parent: Parent, spriteTexture: Texture){
-        super(parent);
+        super(parent, "RenderComponent");
         this.sprite = new Sprite(spriteTexture);
 
         this.sprite.anchor.set(0.5, 0.5);
@@ -49,7 +49,7 @@ export default class RenderComponent<Parent extends ParentType & GameObject = Pa
         this.visible = false;
     };
 
-    toString = () => {
-        return "renderComponent::" + this.parent.toString().split("::")[0]
+    cleanUp(gameCore: GameCore): void {
+        gameCore.pixiApp.stage.removeChild(this.sprite);
     }
 }

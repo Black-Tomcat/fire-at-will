@@ -3,25 +3,30 @@ import GameObject from "../objects/gameObject";
 import GameCore from "../core/gameCore";
 
 
-export interface Vector {x: number; y: number}
+export interface XYObj {x: number; y: number}
 
-interface ParentType {
-    pos: Vector,
-    vel: Vector
+interface ParentType extends GameObject {
+    pos: XYObj,
+    vel: XYObj
     rotation: number
-    targetPos?: Vector
+    targetPos?: XYObj
 }
 
-export default class PhysicsComponent<Parent extends ParentType & GameObject = ParentType & GameObject> extends GameComponent<Parent>{
+export default class PhysicsComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent>{
     static MAX_ACCELERATION = 100; // per second.
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
+    public readonly boundingBox: [number, number][];
 
-    constructor(parent: Parent) {
-        super(parent);
+    public readonly size: { w: number; h: number };
+    constructor(parent: Parent, boundingBox: [number, number][], size: {w: number, h: number}) {
+        super(parent, "PhysicsComponent");
+
+        this.boundingBox = boundingBox;
+        this.size = size;
     }
 
-    static getTargetVector = (currentPos: Vector, targetPos: Vector) => {
+    static getTargetVector = (currentPos: XYObj, targetPos: XYObj) => {
         return {
             x: targetPos.x - currentPos.x,
             y: targetPos.y - currentPos.y
@@ -34,14 +39,14 @@ export default class PhysicsComponent<Parent extends ParentType & GameObject = P
         if (this.parent.targetPos != undefined) {
             if (this.__moveToPosition(delta, this.parent.targetPos) === null) {
                 this.parent.targetPos = undefined;
-            };
+            }
         }
 
         this.parent.pos.x = pos.x + (vel.x * delta/1000);
         this.parent.pos.y = pos.y + (vel.y * delta/1000);
     }
 
-    __moveToPosition = (delta: number, targetPos: Vector): void | null =>  {
+    __moveToPosition = (delta: number, targetPos: XYObj): void | null =>  {
         let {pos, vel} = this.parent;
         const {BOUNDING_BOX} = PhysicsComponent;
 
@@ -64,7 +69,8 @@ export default class PhysicsComponent<Parent extends ParentType & GameObject = P
 
     // TODO think more carefully about this, may cause some inconvenience with
     // ships already moving at an angle to the target. IE a ship moving to the west when target is south east.
-    __changeVelocityToTarget = (delta: number, percentageThrust: number, targetPos: Vector) => {
+
+    __changeVelocityToTarget = (delta: number, percentageThrust: number, targetPos: XYObj) => {
         let {pos} = this.parent;
         const {MAX_ACCELERATION} = PhysicsComponent;
 
@@ -83,8 +89,7 @@ export default class PhysicsComponent<Parent extends ParentType & GameObject = P
         this.parent.vel.x += xAccel;
         this.parent.vel.y += yAccel;
     };
-
-    __changeRotationToTarget = (delta: number, targetPos: Vector) => {
+    __changeRotationToTarget = (delta: number, targetPos: XYObj) => {
         // Return amount of radians till facing target
         let {pos, rotation} = this.parent;
         const {MAX_ROTATION} = PhysicsComponent;
@@ -119,7 +124,5 @@ export default class PhysicsComponent<Parent extends ParentType & GameObject = P
         return rotationDifference
     };
 
-    toString = () => {
-        return "physicsComponent::" + this.parent.toString().split("::")[0]
-    }
+    cleanUp(gameCore: GameCore): void {}
 }

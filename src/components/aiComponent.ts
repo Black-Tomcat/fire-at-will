@@ -3,19 +3,19 @@ import GameObject from "../objects/gameObject";
 import Spaceship, {ShipType} from "../objects/spaceship";
 import GameCore from "../core/gameCore";
 import Fleet from "../objects/fleet";
-import {Vector} from "./physicsComponent";
+import {XYObj} from "./physicsComponent";
 
 
 export type Stances = "AGGRESSIVE" | "DEFENSIVE" | "RETREATING";
 
-interface ParentType {
+interface ParentType extends GameObject{
     type: ShipType;
     fleet: Fleet;
-    targetPos?: Vector
+    targetPos?: XYObj
     targetShip?: Spaceship
 }
 
-export default class AIComponent<Parent extends ParentType & GameObject = ParentType> extends GameComponent<Parent> {
+export default class AIComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
     private readonly stance: "AGGRESSIVE" | "DEFENSIVE" | "RETREATING";
     private readonly aiMap: {
         AGGRESSIVE: (gameCore: GameCore) => void
@@ -23,7 +23,7 @@ export default class AIComponent<Parent extends ParentType & GameObject = Parent
         RETREATING: (gameCore: GameCore) => void;
     };
     constructor(parent: Parent) {
-        super(parent);
+        super(parent, "AIComponent");
 
         this.stance = parent.type.aiType;
 
@@ -33,13 +33,12 @@ export default class AIComponent<Parent extends ParentType & GameObject = Parent
             RETREATING: this.retreatingUpdate
         };
     }
-
     aggressiveUpdate = (gameCore: GameCore) => {
         // Ramming only method c:
         const {objects} = gameCore;
-        const {fleets} = objects;
+        const {Fleet} = objects;
 
-        let newFleets = [...fleets];
+        let newFleets = [...Fleet];
         newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
 
         // TODO check for the 'best' ship to target.
@@ -56,9 +55,9 @@ export default class AIComponent<Parent extends ParentType & GameObject = Parent
 
     defensiveUpdate = (gameCore: GameCore) => {
         const {objects} = gameCore;
-        const {fleets} = objects;
+        const {Fleet} = objects;
 
-        let newFleets = [...fleets];
+        let newFleets = [...Fleet];
         newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
 
         let enemyShip;
@@ -90,7 +89,5 @@ export default class AIComponent<Parent extends ParentType & GameObject = Parent
 
     };
 
-    toString = () => {
-        return "aiComponent::" + this.parent.toString().split("::")[0]
-    }
+    cleanUp(gameCore: GameCore): void {}
 }

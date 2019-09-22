@@ -1,33 +1,26 @@
 // ./src/gameCore.js
 // This is the core of the game. This consists of the gameloop, which handles
 // all updates to the game system as well as the rendering.
-
+import {Application, Loader, LoaderResource, Spritesheet, Texture} from "pixi.js";
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Application, Spritesheet, Texture, BaseTexture, Loader, LoaderResource} from "pixi.js";
-
-import '../css/app.css';
-import sprites from "../assets/sprites.png";
-import spritesheetJSON from '../assets/sprites.json';
-
-import path from 'path';
-import App from '../App';
-
-import Spaceship, {FiringPatternType, ShipType} from "../objects/spaceship";
-
-import Fleet from "../objects/fleet";
-import GameComponent from "../components/gameComponent";
 
 import 'semantic-ui-css/semantic.min.css';
+import App from '../App';
+import spritesheetJSON from '../assets/sprites.json';
+import sprites from "../assets/sprites.png";
+import GameComponent, {ComponentsMap, GameComponentName} from "../components/gameComponent";
+import PhysicsComponent from "../components/physicsComponent";
 
-import GameObject from "../objects/gameObject";
-import PhysicsCore from "./physicsCore";
-import PhysicsComponent, {Vector} from "../components/physicsComponent";
-import AIComponent from "../components/aiComponent";
-import InputComponent from "../components/inputComponent";
-import RenderComponent from "../components/renderComponent";
-import WeaponsComponent from "../components/weaponsComponent";
+import '../css/app.css';
 import Bullet from "../objects/bullet";
+
+import Fleet from "../objects/fleet";
+
+import GameObject, {getComponentsMap} from "../objects/gameObject";
+
+import Spaceship, {FiringPatternType, ShipType} from "../objects/spaceship";
+import PhysicsCore from "./physicsCore";
 
 // const Storage = window.require('electron-json-storage');
 
@@ -50,28 +43,22 @@ type Components = "physicsComponents" | "aiComponents" | "inputComponents" | "re
 export default class GameCore {
     static MS_PER_UPDATE = 1000 / 60;
 
-    public pixiTextures: { [propName: string]: Texture } | null;
+    public pixiTextures: { [propName: string]: Texture & { boundingPoints: [number, number][] } } | null;
     public pixiApp: Application;
     public readonly objects: {
-        fleets: Fleet[];
-        spaceships: Spaceship[];
-        bullets: Bullet[];
+        Fleet: Fleet[];
+        Spaceship: Spaceship[];
+        Bullet: Bullet[];
     };
     private previous: number | null;
     private lag: number;
-    private components: {
-        physicsComponents: PhysicsComponent[];
-        aiComponents: AIComponent[];
-        inputComponents: InputComponent[],
-        renderComponents: RenderComponent[],
-        weaponsComponents: WeaponsComponent[]
-    };
+    private components: ComponentsMap;
     private physicsCore: PhysicsCore;
     private config: GameCoreConfig;
     private frames: number;
     private frames_time: number;
     private readonly shipTemplates: null | ShipTemplates;
-    private firingPatternTemplates: null | FiringPatternTemplates;
+    private readonly firingPatternTemplates: null | FiringPatternTemplates;
 
     constructor(options: GameCoreConfig) {
         // GAME LOOP FIELD
@@ -79,13 +66,13 @@ export default class GameCore {
         this.lag = 0.0;
 
         this.components = {
-            physicsComponents: [],
-            aiComponents: [],
-            inputComponents: [],
-            renderComponents: [],
-            weaponsComponents: []
+            PhysicsComponent: [],
+            AIComponent: [],
+            InputComponent: [],
+            RenderComponent: [],
+            WeaponsComponent: []
         };
-        this.physicsCore = new PhysicsCore(this);
+        this.physicsCore = new PhysicsCore();
 
         this.pixiApp = new Application({
             width: window.innerWidth,
@@ -131,9 +118,9 @@ export default class GameCore {
         };
 
         this.objects = {
-            fleets: [],
-            spaceships: [],
-            bullets: [],
+            Fleet: [],
+            Spaceship: [],
+            Bullet: [],
         }
     }
 
@@ -146,6 +133,12 @@ export default class GameCore {
             this.setupDummyGame();
             this.previous = new Date().getTime();
             this.gameLoop();
+            ReactDOM.render(
+                <App>
+                    {this.components.InputComponent.map(el => el.display())}
+                </App>,
+                document.getElementById("react-entry")
+            );
         };
 
         const spriteCallback = () => {
@@ -169,7 +162,7 @@ export default class GameCore {
         renderer.view.style.display = "block";
 
         // Loading the sprites into the PIXI loader, then allowing access to
-        // them at a classwide scope.
+        // them at a class wide scope.
         this.pixiApp.loader.add(
             "sprites", sprites
         ).load((loader: Loader, resources) => {
@@ -180,8 +173,7 @@ export default class GameCore {
                 for (let frame in spritesheetJSON.frames) {
                     this.pixiTextures[frame] = {
                         ...sprites[frame],
-                        // @ts-ignore
-                        boundingPoints: spritesheetJSON.frames[frame].boundingPoints
+                        ...(spritesheetJSON.frames as unknown as any)[frame]
                     }
                 }
             });
@@ -194,30 +186,35 @@ export default class GameCore {
     };
 
     setupDummyGame = () => {
-        // Create fleets
-        new Fleet(this, true);
-        new Fleet(this);
+        // Create Fleet
+        this.addGameObject(new Fleet(this, true));
+        this.addGameObject(new Fleet(this));
 
-        // Add new spaceships to each fleet.
-        this.objects.fleets[0].addNewSpaceship(
-            new Spaceship(
-                this,
-                (this.shipTemplates as ShipTemplates)["aggressiveRammer"],
-                {x: 100, y: 100},
-                {x: 0, y: 0}, // Approx. Bullet speed == 300
-                this.objects.fleets[0]
-            )
+        // Add new Spaceship to each fleet.
+        let enemy = new Spaceship(
+            this,
+            (this.shipTemplates as ShipTemplates)["aggressiveRammer"],
+            {x: 200, y: 200},
+            {x: 0, y: 0}, // Approx. Bullet speed == 300
+            this.objects.Fleet[0]
+        );
+        this.addGameObject(enemy);
+        this.objects.Fleet[0].addNewSpaceship(
+            enemy
         );
 
-        this.objects.fleets[1].addNewSpaceship(
-            new Spaceship(
-                this,
-                (this.shipTemplates as ShipTemplates)["defensiveBullets"],
-                {x: 400, y: 400},
-                {x: 0, y: -10},
-                this.objects.fleets[1],
-            )
+        let friendlySpaceship = new Spaceship(
+            this,
+            (this.shipTemplates as ShipTemplates)["defensiveBullets"],
+            {x: 400, y: 400},
+            {x: 0, y: -10},
+            this.objects.Fleet[1],
         );
+        this.addGameObject(friendlySpaceship);
+        this.objects.Fleet[1].addNewSpaceship(
+            friendlySpaceship
+        );
+
     };
 
     gameLoop = () => {
@@ -238,6 +235,26 @@ export default class GameCore {
             // this.updateGameState(elapsedTurns)
             this.lag -= GameCore.MS_PER_UPDATE;
             this.updateGameState(GameCore.MS_PER_UPDATE);
+            this.renderGraphics(this.lag);
+
+            const toDelete: GameObject[] = this.physicsCore.detectCollisions(
+                this.components.PhysicsComponent.filter((item: PhysicsComponent) => !(item.parent instanceof Bullet)),
+                this.components.PhysicsComponent.filter((item: PhysicsComponent) => item.parent instanceof Bullet)
+            );
+
+            for (const [type, items] of Object.entries(getComponentsMap(
+                toDelete.map(item => item.components).flat()
+            ))) {
+                // @ts-ignore
+                const removedComponents: GameComponent[] = _.remove(this.components[type], (item) => (items as []).includes(item))
+                for (const removedComponent of removedComponents) {
+                    removedComponent.cleanUp(this);
+                }
+            }
+
+            for (const gameObject of toDelete) {
+                gameObject.cleanUp(this)
+            }
         }
 
         // Render the graphics with an idea of how much time has passed.
@@ -260,52 +277,32 @@ export default class GameCore {
     };
 
     updateGameState = (delta: number) => {
-        for (let physics of this.components.physicsComponents) {
+        for (let physics of this.components.PhysicsComponent) {
             physics.update(delta, this);
         }
 
-        for (let ai of this.components.aiComponents) {
+        for (let ai of this.components.AIComponent) {
             ai.update(delta, this);
         }
 
-        for (let weapons of this.components.weaponsComponents) {
+        for (let weapons of this.components.WeaponsComponent) {
             weapons.update(delta, this)
         }
     };
 
     renderGraphics = (delta: number) => {
-        for (let render of this.components.renderComponents) {
+        for (let render of this.components.RenderComponent) {
             render.update(delta, this)
         }
-
-        // TODO rip this out and trigger re-renders via state actions.
-        ReactDOM.render(
-            <App>
-                {this.components.inputComponents.map(el => el.display())}
-            </App>,
-            document.getElementById("react-entry")
-        );
     };
 
-    // TODO Merge addComponent and addGameObject
-    addComponent = (component: GameComponent) => {
-        // Handles adding a specific component to the game core, in order for it
-        // to be updated by it's relevant methods (renderGraphics or updateGameState)
-        // TODO handle an array being passed in.
-        const componentName = (component.toString().split("::")[0] + "s");
-        // @ts-ignore
-        this.components[componentName].push(component);
-    };
 
     addGameObject = (object: GameObject) => {
-        const objectName = object.toString().split("::")[0] + "s";
-        // @ts-ignore
-        this.objects[objectName].push(object);
-        if (objectName in [
-            "spaceships",
-        ]) {
-            // @ts-ignore
-            this.physicsCore.addGameObject(object)
+        // @ts-ignore Since object can't be specified further
+        this.objects[object.name].push(object);
+        for (const [type, items] of Object.entries(getComponentsMap(object.components))) {
+            // @ts-ignore since sub child type can't be specified.
+            this.components[type as GameComponentName].push(...items)
         }
     }
 }

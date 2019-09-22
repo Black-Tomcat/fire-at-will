@@ -1,11 +1,12 @@
 // ./src/components/objects/spaceship.js
 // This contains the framework for the spaceship object and the relevant factory
 
-import PhysicsComponent, {Vector} from "../components/physicsComponent";
+import GameComponent from "../components/gameComponent";
+import PhysicsComponent, {XYObj} from "../components/physicsComponent";
 import RenderComponent from "../components/renderComponent";
 import InputComponent from "../components/inputComponent";
 import AIComponent, {Stances} from "../components/aiComponent";
-import GameObject, {ComponentsObject} from "./gameObject";
+import GameObject, {GameObjectComponents, ObjectName} from "./gameObject";
 import WeaponsComponent from "../components/weaponsComponent";
 import GameCore from "../core/gameCore";
 import Fleet from "./fleet";
@@ -39,29 +40,28 @@ export class FiringPattern {
 
 
 export default class Spaceship extends GameObject {
-    public pos: Vector;
-    public vel: Vector;
-    public targetPos?: Vector;
+    public pos: XYObj;
+    public vel: XYObj;
+    public targetPos?: XYObj;
     public rotation: number;
     public type: ShipType;
     public fleet: Fleet;
     public targetShip?: Spaceship;
     public patterns: FiringPattern[];
-
     private readonly physicsComponent: PhysicsComponent<Spaceship>;
+
     private readonly renderComponent: RenderComponent<Spaceship>;
     private readonly inputComponent: InputComponent<Spaceship>;
     private readonly aiComponent: AIComponent<Spaceship>;
     private readonly weaponsComponent: WeaponsComponent<Spaceship>;
-
     constructor(
         gameCore: GameCore,
         type: ShipType,
-        pos: Vector,
-        vel: Vector,
+        pos: XYObj,
+        vel: XYObj,
         fleet: Fleet,
     ) {
-        super(gameCore);
+        super(gameCore, "Spaceship");
         // @ts-ignore
         const texture = gameCore.pixiTextures[type.sprite];
 
@@ -89,24 +89,27 @@ export default class Spaceship extends GameObject {
         // SPACESHIP COMPONENTS
         // merges the default components with their overriding components.
 
-        this.physicsComponent = new PhysicsComponent<Spaceship>(this);
+        // @ts-ignore
+        this.physicsComponent = new PhysicsComponent<Spaceship>(this, texture.boundingPoints, texture.sourceSize);
         this.renderComponent = new RenderComponent<Spaceship>(this, texture);
         this.inputComponent = new InputComponent<Spaceship>(this);
         this.aiComponent = new AIComponent<Spaceship>(this);
         this.weaponsComponent = new WeaponsComponent<Spaceship>(this);
-
-        for (let component of [
-            this.physicsComponent,
-            this.renderComponent,
-            this.inputComponent,
-            this.aiComponent,
-            this.weaponsComponent
-        ]) {
-            gameCore.addComponent(component);
-        }
     }
 
     toString() {
         return "spaceship"
     }
+
+    get components(): GameComponent[] {
+        return [
+            this.physicsComponent,
+            this.renderComponent,
+            this.inputComponent,
+            this.aiComponent,
+            this.weaponsComponent
+        ];
+    }
+
+    cleanUp(gameCore: GameCore): void {}
 }

@@ -1,22 +1,22 @@
-import GameComponent from "./gameComponent";
-import PhysicsComponent, {Vector} from './physicsComponent';
+import GameCore from "../core/gameCore";
 import Bullet from "../objects/bullet";
 import GameObject from "../objects/gameObject";
-import GameCore from "../core/gameCore";
 import Spaceship, {FiringPattern, ShipType} from "../objects/spaceship";
+import GameComponent from "./gameComponent";
+import PhysicsComponent, {XYObj} from './physicsComponent';
 
 
-interface ParentType {
+interface ParentType extends GameObject {
     type: ShipType
     targetShip?: Spaceship
     patterns: FiringPattern[]
     // ammo: string
-    pos: Vector
+    pos: XYObj
 }
 
-export default class WeaponsComponent<Parent extends ParentType & GameObject = ParentType> extends GameComponent<Parent> {
+export default class WeaponsComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
     constructor(parent: Parent) {
-        super(parent);
+        super(parent, "WeaponsComponent");
     }
 
     update(delta: number, gameCore: GameCore) {
@@ -40,12 +40,13 @@ export default class WeaponsComponent<Parent extends ParentType & GameObject = P
             pattern.active = targetShip;
         }
 
+        let i = 0;
         for (let pattern of patterns.filter((item) => item.active !== undefined)) {
-            this.__fireGun(pattern, delta, gameCore)
+            this.__fireGun(pattern, i++, delta, gameCore)
         }
     }
 
-    __fireGun(firingPattern: FiringPattern, delta: number, gameCore: GameCore) {
+    __fireGun(firingPattern: FiringPattern, iteration: number, delta: number, gameCore: GameCore) {
         // TODO finish this method with some ammo.
         const {timeSinceLastFired: lastFired, active} = firingPattern;
         const {launcherAmount} = firingPattern.firingPatternType;
@@ -63,15 +64,17 @@ export default class WeaponsComponent<Parent extends ParentType & GameObject = P
 
             let vel = {
                 x: (Math.sin(toTargetVector.x) * 300),
-                y: (Math.sin(toTargetVector.y) * 300)};
+                y: (Math.sin(toTargetVector.y) * 300)
+            };
 
 
-            new Bullet(gameCore, {...this.parent.pos}, vel);
-            //new Spaceship(gameCore, gameCore.shipTemplates["defensiveBullets"], {...this.parent.pos}, vel, gameCore.fleets[0]);
+            gameCore.addGameObject(
+                // @ts-ignore
+                new Bullet(gameCore, {...this.parent.pos, x: this.parent.pos.x - iteration * 5}, vel, this.parent as Spaceship)
+            )
+            //new Spaceship(gameCore, gameCore.shipTemplates["defensiveBullets"], {...this.parent.pos}, vel, gameCore.Fleet[0]);
         }
     }
 
-    toString = () => {
-        return "weaponsComponent::" + this.parent.toString().split("::")[0]
-    }
+    cleanUp(gameCore: GameCore): void {};
 }
