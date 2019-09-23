@@ -1,6 +1,6 @@
-import GameComponent from "./gameComponent";
-import GameObject from "../objects/gameObject";
-import GameCore from "../core/gameCore";
+import GameComponent from "components";
+import GameObject from "objects";
+import GameCore from "core/GameCore";
 
 
 export interface XYObj {x: number; y: number}

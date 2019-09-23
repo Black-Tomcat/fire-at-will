@@ -1,15 +1,9 @@
 // ./src/components/objects/spaceship.js
 // This contains the framework for the spaceship object and the relevant factory
 
-import GameComponent from "../components/gameComponent";
-import PhysicsComponent, {XYObj} from "../components/physicsComponent";
-import RenderComponent from "../components/renderComponent";
-import InputComponent from "../components/inputComponent";
-import AIComponent, {Stances} from "../components/aiComponent";
-import GameObject, {GameObjectComponents, ObjectName} from "./gameObject";
-import WeaponsComponent from "../components/weaponsComponent";
-import GameCore from "../core/gameCore";
-import Fleet from "./fleet";
+import GameComponent, {AIComponent, InputComponent, PhysicsComponent, RenderComponent, Stances, WeaponsComponent, XYObj} from "components";
+import GameObject, {Fleet} from "objects";
+import GameCore from "core/GameCore";
 
 
 export interface ShipType {
@@ -54,6 +48,7 @@ export default class Spaceship extends GameObject {
     private readonly inputComponent: InputComponent<Spaceship>;
     private readonly aiComponent: AIComponent<Spaceship>;
     private readonly weaponsComponent: WeaponsComponent<Spaceship>;
+
     constructor(
         gameCore: GameCore,
         type: ShipType,
@@ -81,7 +76,7 @@ export default class Spaceship extends GameObject {
         this.patterns = []; // The name of the pattern, and how many are active. The actual pattern info is stored in the type object.
 
         for (const [amount, firingPattern] of this.type.patterns) {
-            for (let i=0; i < amount; i++) {
+            for (let i = 0; i < amount; i++) {
                 this.patterns.push(new FiringPattern(firingPattern));
             }
         }
@@ -97,10 +92,6 @@ export default class Spaceship extends GameObject {
         this.weaponsComponent = new WeaponsComponent<Spaceship>(this);
     }
 
-    toString() {
-        return "spaceship"
-    }
-
     get components(): GameComponent[] {
         return [
             this.physicsComponent,
@@ -111,5 +102,6 @@ export default class Spaceship extends GameObject {
         ];
     }
 
-    cleanUp(gameCore: GameCore): void {}
+    cleanUp(gameCore: GameCore): void {
+    }
 }

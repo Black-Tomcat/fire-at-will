@@ -1,9 +1,8 @@
 import {intersection} from "greiner-hormann"
-import PhysicsComponent, {XYObj} from "../components/physicsComponent";
-import Bullet from "../objects/bullet";
-import GameObject from "../objects/gameObject";
-import Spaceship from "../objects/spaceship";
 import _ from "lodash";
+
+import {PhysicsComponent, XYObj} from "components";
+import GameObject, {Bullet, Spaceship} from 'objects';
 
 export default class PhysicsCore {
     static GRIDSIZE = 100;

@@ -1,7 +1,6 @@
-import GameComponent from "../components/gameComponent";
-import gameObject, {ObjectName} from "./gameObject";
-import GameCore from "../core/gameCore";
-import Spaceship from "./spaceship";
+import GameComponent from "components";
+import gameObject, {ObjectName, Spaceship} from "objects";
+import GameCore from "core/GameCore";
 
 
 export default class Fleet extends gameObject{
@@ -21,10 +20,6 @@ export default class Fleet extends gameObject{
     addNewSpaceship = (spaceship: Spaceship) => {
         this.spaceships.push(spaceship);
     };
-
-    toString() {
-        return 'fleet';
-    }
 
     get components(): GameComponent[] {
         return [];

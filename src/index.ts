@@ -1,5 +1,5 @@
 // ENTRY POINT TO PROGRAM
-import GameCore from './core/gameCore';
+import GameCore from 'core/GameCore';
 
 let config = {
     debug: true

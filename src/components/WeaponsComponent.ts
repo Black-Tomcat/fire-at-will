@@ -1,9 +1,6 @@
-import GameCore from "../core/gameCore";
-import Bullet from "../objects/bullet";
-import GameObject from "../objects/gameObject";
-import Spaceship, {FiringPattern, ShipType} from "../objects/spaceship";
-import GameComponent from "./gameComponent";
-import PhysicsComponent, {XYObj} from './physicsComponent';
+import GameComponent, {PhysicsComponent, XYObj} from "components";
+import GameObject, {Bullet, Spaceship, FiringPattern, ShipType} from "objects";
+import GameCore from "core/GameCore";
 
 
 interface ParentType extends GameObject {

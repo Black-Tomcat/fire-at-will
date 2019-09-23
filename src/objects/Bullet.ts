@@ -1,9 +1,6 @@
-import PhysicsComponent, {XYObj} from "../components/physicsComponent";
-import RenderComponent from "../components/renderComponent";
-import GameObject, {GameObjectComponents, ObjectName} from "./gameObject";
-import GameCore from "../core/gameCore";
-import Spaceship from "./spaceship";
-import GameComponent from "../components/gameComponent";
+import GameComponent, {PhysicsComponent, RenderComponent, XYObj} from 'components';
+import GameObject, {GameObjectComponents, ObjectName, Spaceship} from "objects";
+import GameCore from "core/GameCore";
 
 export default class Bullet extends GameObject {
     public pos: {x: number; y: number};
@@ -41,9 +38,6 @@ export default class Bullet extends GameObject {
         this.renderComponent = new RenderComponent(this, gameCore.pixiTextures["bullet"]);
     }
 
-    toString() {
-        return "bullet"
-    }
 
     get components(): GameComponent[] {
         return [this.physicsComponent, this.renderComponent];

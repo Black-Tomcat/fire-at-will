@@ -1,28 +1,20 @@
 // ./src/gameCore.js
 // This is the core of the game. This consists of the gameloop, which handles
 // all updates to the game system as well as the rendering.
-import {Application, Loader, LoaderResource, Spritesheet, Texture} from "pixi.js";
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import 'semantic-ui-css/semantic.min.css';
 import App from '../App';
-import spritesheetJSON from '../assets/sprites.json';
-import sprites from "../assets/sprites.png";
-import GameComponent, {ComponentsMap, GameComponentName} from "../components/gameComponent";
-import PhysicsComponent from "../components/physicsComponent";
 
 import '../css/app.css';
-import Bullet from "../objects/bullet";
+import 'semantic-ui-css/semantic.min.css';
 
-import Fleet from "../objects/fleet";
+import {Application, Loader, LoaderResource, Spritesheet, Texture} from "pixi.js";
+import spritesheetJSON from '../assets/sprites.json';
+import sprites from "../assets/sprites.png";
 
-import GameObject, {getComponentsMap} from "../objects/gameObject";
-
-import Spaceship, {FiringPatternType, ShipType} from "../objects/spaceship";
-import PhysicsCore from "./physicsCore";
-
-// const Storage = window.require('electron-json-storage');
+import GameComponent, {ComponentsMap, GameComponentName, PhysicsComponent} from "components";
+import GameObject, {getComponentsMap, Bullet, Fleet, Spaceship, FiringPatternType, ShipType} from "objects";
+import PhysicsCore from "core/PhysicsCore";
 
 
 interface GameCoreConfig {
@@ -38,8 +30,6 @@ interface FiringPatternTemplates {
     [propName: string]: FiringPatternType;
 }
 
-type Components = "physicsComponents" | "aiComponents" | "inputComponents" | "renderComponents" | "weaponsComponents"
-
 export default class GameCore {
     static MS_PER_UPDATE = 1000 / 60;
 
@@ -52,7 +42,7 @@ export default class GameCore {
     };
     private previous: number | null;
     private lag: number;
-    private components: ComponentsMap;
+    private readonly components: ComponentsMap;
     private physicsCore: PhysicsCore;
     private config: GameCoreConfig;
     private frames: number;
@@ -135,7 +125,7 @@ export default class GameCore {
             this.gameLoop();
             ReactDOM.render(
                 <App>
-                    {this.components.InputComponent.map(el => el.display())}
+                    {this.components.InputComponent.map((item) => item.getRenderComponent())}
                 </App>,
                 document.getElementById("react-entry")
             );

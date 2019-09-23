@@ -1,14 +1,8 @@
 import _ from 'lodash';
-import AIComponent from "../components/aiComponent";
-import GameComponent, {ComponentsMap} from "../components/gameComponent";
-import InputComponent from "../components/inputComponent";
-import PhysicsComponent from "../components/physicsComponent";
-import RenderComponent from "../components/renderComponent";
-import WeaponsComponent from "../components/weaponsComponent";
-import GameCore from "../core/gameCore";
-import Bullet from "./bullet";
-import Fleet from "./fleet";
-import Spaceship from "./spaceship";
+
+import GameComponent, {ComponentsMap, AIComponent, InputComponent, PhysicsComponent, RenderComponent, WeaponsComponent} from "components";
+import {Bullet, Fleet, Spaceship} from "objects";
+import GameCore from "core/GameCore";
 
 
 export interface GameObjectComponents {

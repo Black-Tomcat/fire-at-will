@@ -1,14 +1,13 @@
-import GameComponent from "./gameComponent";
-import GameObject from "../objects/gameObject";
-import Spaceship, {ShipType} from "../objects/spaceship";
-import GameCore from "../core/gameCore";
-import Fleet from "../objects/fleet";
-import {XYObj} from "./physicsComponent";
+// import GameComponent from "components/gameComponent";
+
+import GameComponent, {XYObj} from 'components'
+import {Fleet, GameObject, Spaceship, ShipType} from "objects";
+import GameCore from "core/GameCore";
 
 
 export type Stances = "AGGRESSIVE" | "DEFENSIVE" | "RETREATING";
 
-interface ParentType extends GameObject{
+interface ParentType extends GameObject {
     type: ShipType;
     fleet: Fleet;
     targetPos?: XYObj
@@ -22,6 +21,7 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
         DEFENSIVE: (gameCore: GameCore) => void;
         RETREATING: (gameCore: GameCore) => void;
     };
+
     constructor(parent: Parent) {
         super(parent, "AIComponent");
 
@@ -33,6 +33,7 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
             RETREATING: this.retreatingUpdate
         };
     }
+
     aggressiveUpdate = (gameCore: GameCore) => {
         // Ramming only method c:
         const {objects} = gameCore;
@@ -62,7 +63,7 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
 
         let enemyShip;
         if (newFleets[0] && newFleets[0].spaceships[0]) {
-             enemyShip = newFleets[0].spaceships[0];
+            enemyShip = newFleets[0].spaceships[0];
         }
 
         if (enemyShip) {
@@ -89,5 +90,6 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
 
     };
 
-    cleanUp(gameCore: GameCore): void {}
+    cleanUp(gameCore: GameCore): void {
+    }
 }

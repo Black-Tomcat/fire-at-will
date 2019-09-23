@@ -1,8 +1,8 @@
-import GameComponent from "./gameComponent";
 import {Sprite, Texture} from "pixi.js";
-import GameObject from "../objects/gameObject";
-import {XYObj} from "./physicsComponent";
-import GameCore from "../core/gameCore";
+
+import GameComponent, {XYObj} from "components";
+import GameObject from "objects";
+import GameCore from "core/GameCore";
 
 
 interface ParentType extends GameObject{

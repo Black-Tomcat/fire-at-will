@@ -1,12 +1,8 @@
 // ./src/components/gameComponent.js
-import GameCore from "../core/gameCore";
-import gameCore from "../core/gameCore";
-import GameObject from "../objects/gameObject";
-import AIComponent from "./aiComponent";
-import InputComponent from "./inputComponent";
-import PhysicsComponent from "./physicsComponent";
-import RenderComponent from "./renderComponent";
-import WeaponsComponent from "./weaponsComponent";
+
+import {AIComponent, InputComponent, PhysicsComponent, RenderComponent, WeaponsComponent} from 'components';
+import {GameObject} from "objects";
+import GameCore from "core/GameCore";
 
 
 export type GameComponentName = "PhysicsComponent" | "AIComponent" | "InputComponent" | "RenderComponent" | "WeaponsComponent"
@@ -25,7 +21,7 @@ export default abstract class GameComponent<Parent extends GameObject = GameObje
      * their data from. They should also implement an update() method in which
      * the GameCore calls, and updates the state relative to that component for
      * the parent object. */
-    public readonly parent: Parent ;
+    public readonly parent: Parent;
     public readonly name: (GameComponentName);
 
     protected constructor(parent: Parent, name: GameComponentName) {
@@ -33,7 +29,7 @@ export default abstract class GameComponent<Parent extends GameObject = GameObje
         this.name = name
     };
 
-    abstract update(delta: number, gameCore?: gameCore): void;
+    abstract update(delta: number, gameCore?: GameCore): void;
 
     abstract cleanUp(gameCore: GameCore): void;
 }
