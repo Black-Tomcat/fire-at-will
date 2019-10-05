@@ -1,23 +1,23 @@
 // import GameComponent from "components/gameComponent";
 
-import GameComponent, {XYObj} from 'components'
-import {Fleet, GameObject, Spaceship, ShipType} from "objects";
+import { XYObj } from "components";
+import GameComponent from "components/GameComponent";
+import { Fleet, GameObject, Spaceship, ShipType } from "objects";
 import GameCore from "core/GameCore";
-
 
 export type Stances = "AGGRESSIVE" | "DEFENSIVE" | "RETREATING";
 
 interface ParentType extends GameObject {
     type: ShipType;
     fleet: Fleet;
-    targetPos?: XYObj
-    targetShip?: Spaceship
+    targetPos?: XYObj;
+    targetShip?: Spaceship;
 }
 
 export default class AIComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
     private readonly stance: "AGGRESSIVE" | "DEFENSIVE" | "RETREATING";
     private readonly aiMap: {
-        AGGRESSIVE: (gameCore: GameCore) => void
+        AGGRESSIVE: (gameCore: GameCore) => void;
         DEFENSIVE: (gameCore: GameCore) => void;
         RETREATING: (gameCore: GameCore) => void;
     };
@@ -36,8 +36,8 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
 
     aggressiveUpdate = (gameCore: GameCore) => {
         // Ramming only method c:
-        const {objects} = gameCore;
-        const {Fleet} = objects;
+        const { objects } = gameCore;
+        const { Fleet } = objects;
 
         let newFleets = [...Fleet];
         newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
@@ -55,8 +55,8 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
     };
 
     defensiveUpdate = (gameCore: GameCore) => {
-        const {objects} = gameCore;
-        const {Fleet} = objects;
+        const { objects } = gameCore;
+        const { Fleet } = objects;
 
         let newFleets = [...Fleet];
         newFleets.splice(newFleets.indexOf(this.parent.fleet), 1);
@@ -66,16 +66,10 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
             enemyShip = newFleets[0].spaceships[0];
         }
 
-        if (enemyShip) {
-            this.parent.targetShip = enemyShip;
-        } else {
-            this.parent.targetShip = undefined;
-        }
+        this.parent.targetShip = enemyShip;
     };
 
-    retreatingUpdate = (gameCore: GameCore) => {
-
-    };
+    retreatingUpdate = (gameCore: GameCore) => {};
 
     update(delta: number, gameCore: GameCore) {
         // figure out stance. (Aggressive, Defensive, Passive?, Retreating)
@@ -86,10 +80,7 @@ export default class AIComponent<Parent extends ParentType = ParentType> extends
         this.aiMap[this.stance](gameCore);
     }
 
-    updateStance = () => {
+    updateStance = () => {};
 
-    };
-
-    cleanUp(gameCore: GameCore): void {
-    }
+    cleanUp(gameCore: GameCore): void {}
 }

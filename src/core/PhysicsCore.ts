@@ -34,7 +34,7 @@ export default class PhysicsCore {
         const toDelete: GameObject[] = [];
 
 
-        for (const largeObject of largeObjects) {
+        largeObjectIteration: for (const largeObject of largeObjects) {
             const bullets = smallObjects.filter(
                 (bulletPhysics: PhysicsComponent) => bulletPhysics.parent.pos.x
             );
@@ -66,7 +66,12 @@ export default class PhysicsCore {
                     this.translate(pos, bullet.rotation, {w: 2, h: 3}, bulletPhysics.boundingBox),
                     largeTranslation
                 ) != null) {
-                    toDelete.push(bullet)
+                    toDelete.push(bullet);
+                    const deleteLargeObject = largeObject.hitByBullet();
+                    if (deleteLargeObject) {
+                        toDelete.push(deleteLargeObject);
+                        continue largeObjectIteration;
+                    }
                 }
             }
         }

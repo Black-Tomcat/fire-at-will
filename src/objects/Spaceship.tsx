@@ -1,10 +1,18 @@
 // ./src/components/objects/spaceship.js
 // This contains the framework for the spaceship object and the relevant factory
 
-import GameComponent, {AIComponent, InputComponent, PhysicsComponent, RenderComponent, Stances, WeaponsComponent, XYObj} from "components";
-import GameObject, {Fleet} from "objects";
+import GameComponent, {
+    AIComponent,
+    InputComponent,
+    PhysicsComponent,
+    RenderComponent,
+    Stances,
+    WeaponsComponent,
+    XYObj
+} from "components";
+import GameObject, { Fleet } from "objects";
 import GameCore from "core/GameCore";
-
+import _ from "lodash";
 
 export interface ShipType {
     readonly aiType: Stances;
@@ -32,7 +40,6 @@ export class FiringPattern {
     }
 }
 
-
 export default class Spaceship extends GameObject {
     public pos: XYObj;
     public vel: XYObj;
@@ -42,6 +49,8 @@ export default class Spaceship extends GameObject {
     public fleet: Fleet;
     public targetShip?: Spaceship;
     public patterns: FiringPattern[];
+    public hitPoints: number;
+
     private readonly physicsComponent: PhysicsComponent<Spaceship>;
 
     private readonly renderComponent: RenderComponent<Spaceship>;
@@ -49,13 +58,7 @@ export default class Spaceship extends GameObject {
     private readonly aiComponent: AIComponent<Spaceship>;
     private readonly weaponsComponent: WeaponsComponent<Spaceship>;
 
-    constructor(
-        gameCore: GameCore,
-        type: ShipType,
-        pos: XYObj,
-        vel: XYObj,
-        fleet: Fleet,
-    ) {
+    constructor(gameCore: GameCore, type: ShipType, pos: XYObj, vel: XYObj, fleet: Fleet) {
         super(gameCore, "Spaceship");
         // @ts-ignore
         const texture = gameCore.pixiTextures[type.sprite];
@@ -64,6 +67,7 @@ export default class Spaceship extends GameObject {
         this.type = type; // This contains all the data for the ship's class/weapons/etc.
 
         this.fleet = fleet; // The fleet the ship is associated with.
+        this.hitPoints = 100;
 
         // POSITION INFORMATION
         this.pos = pos; // This is where the ship is currently
@@ -103,5 +107,6 @@ export default class Spaceship extends GameObject {
     }
 
     cleanUp(gameCore: GameCore): void {
+        _.remove(this.fleet.spaceships, item => item === this);
     }
 }

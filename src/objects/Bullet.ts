@@ -1,11 +1,12 @@
-import GameComponent, {PhysicsComponent, RenderComponent, XYObj} from 'components';
-import GameObject, {GameObjectComponents, ObjectName, Spaceship} from "objects";
+import GameComponent, { PhysicsComponent, RenderComponent, XYObj } from "components";
+import GameObject, { GameObjectComponents, ObjectName, Spaceship } from "objects";
 import GameCore from "core/GameCore";
 
 export default class Bullet extends GameObject {
-    public pos: {x: number; y: number};
-    public vel: {x: number; y: number};
+    public pos: { x: number; y: number };
+    public vel: { x: number; y: number };
     public rotation: number;
+    public hitPoints: number;
 
     public readonly spawner: Spaceship;
 
@@ -25,19 +26,24 @@ export default class Bullet extends GameObject {
         this.vel = vel;
         this.rotation = 45; // TODO change this so it fits.
 
+        this.hitPoints = 1;
+
         this.spawner = spawner;
 
         this.physicsComponent = new PhysicsComponent<Bullet>(
             this,
-            (gameCore.pixiTextures as {[propName: string]: {boundingPoints: [number, number][]}})["bullet"].boundingPoints,
-            // @ts-ignore
-            (gameCore.pixiTextures as {[propName: string]: {boundingPoints: [number, number][]}})["bullet"].sourceSize
+            (gameCore.pixiTextures as { [propName: string]: { boundingPoints: [number, number][] } })[
+                "bullet"
+            ].boundingPoints,
+            (gameCore.pixiTextures as { [propName: string]: { boundingPoints: [number, number][] } })[
+                "bullet"
+                // @ts-ignore
+            ].sourceSize
         );
 
         // @ts-ignore
         this.renderComponent = new RenderComponent(this, gameCore.pixiTextures["bullet"]);
     }
-
 
     get components(): GameComponent[] {
         return [this.physicsComponent, this.renderComponent];
@@ -45,4 +51,3 @@ export default class Bullet extends GameObject {
 
     cleanUp(gameCore: GameCore): void {}
 }
-

@@ -1,6 +1,6 @@
 import {Sprite, Texture} from "pixi.js";
 
-import GameComponent, {XYObj} from "components";
+import {GameComponent, XYObj} from "components";
 import GameObject from "objects";
 import GameCore from "core/GameCore";
 

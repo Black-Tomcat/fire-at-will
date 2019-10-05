@@ -1,4 +1,4 @@
-import GameComponent from "components";
+import {GameComponent} from "components";
 import GameObject from "objects";
 import GameCore from "core/GameCore";
 
@@ -6,6 +6,7 @@ import GameCore from "core/GameCore";
 export interface XYObj {x: number; y: number}
 
 interface ParentType extends GameObject {
+    hitPoints: number;
     pos: XYObj,
     vel: XYObj
     rotation: number
@@ -125,4 +126,10 @@ export default class PhysicsComponent<Parent extends ParentType = ParentType> ex
     };
 
     cleanUp(gameCore: GameCore): void {}
+
+    hitByBullet(): Parent | undefined {
+        this.parent.hitPoints -= 1;
+
+        return this.parent.hitPoints === 0 ? this.parent : undefined;
+    }
 }

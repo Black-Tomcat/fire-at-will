@@ -1,17 +1,34 @@
 body {
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
 }
 
 #react-entry {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  z-index: 1;
-  /*background-color: #000;*/
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    z-index: 1;
+    /*background-color: #000;*/
 }
 
 .sprite {
-  position: absolute;
+    position: absolute;
+}
+
+div.demo {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    /*width: 110px;*/
+    /*height: 110px;*/
+    margin: 10px;
+    --aug-border: 2px;
+    --aug-inset: 4px;
+    padding: 15px; /* mind the gap */
+    text-align: center;
+    --aug-border-bg: #751265;
+    --aug-inset-bg: #751265;
+
 }

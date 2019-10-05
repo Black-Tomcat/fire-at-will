@@ -41,7 +41,7 @@ If there is a requested change you wisht to see implemented, the best process wo
 ## Getting Started
 1. Clone the repository.
 2. run `yarn` within the directory it was cloned to.
-3. run `yarn run quickstart` to webpack all needed files, and to run the electron shell
+3. run `yarn run start` to setup the basic dev server needed to see the page.
 
 ## What This Is
 Fire At Will is a game around something so taken for granted by science fiction. Firing Patterns. In this game, you can control which bullets to fire, when or where they should detonate, their fire rate, and much more! This is also combined with a ship editor to give you full control over how you and your fleet approach a problem, rather then being binded to a set of ships and guns provided to you by the game.

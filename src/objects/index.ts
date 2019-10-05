@@ -1,8 +1,5 @@
-import GameObject from "objects/GameObject";
-export default GameObject;
-
 export * from 'objects/GameObject';
-export {default as GameObject} from 'objects/GameObject';
+export {default as GameObject, default as default} from 'objects/GameObject';
 
 
 export * from 'objects/Spaceship';

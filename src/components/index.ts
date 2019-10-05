@@ -1,8 +1,5 @@
-import GameComponent from 'components/GameComponent';
-export default GameComponent;
-
 export * from "components/GameComponent"
-export {default as GameComponent} from "components/GameComponent"
+export {default as default, default as GameComponent} from "components/GameComponent"
 
 
 export * from 'components/AIComponent'

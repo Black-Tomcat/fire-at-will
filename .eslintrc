@@ -1,0 +1,24 @@
+{
+  "parser":  "@typescript-eslint/parser",
+  "extends":  [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules":  {
+    "@typescript-eslint/indent": ["error", 4],
+    "@typescript-eslint/no-namespace": "off",
+    "react/display-name": "off",
+    "@typescript-eslint/explicit-member-accessibility": "off"
+  },
+  "settings":  {
+    "react":  {
+      "version":  "detect"
+    }
+  }
+}

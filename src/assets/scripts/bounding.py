@@ -77,7 +77,7 @@ if __name__ == '__main__':
         sprites = json.load(f_sprites)
 
     try:
-        os.mkdir("sprites")
+        os.mkdir("../sprites")
     except FileExistsError:
         pass
 
@@ -105,24 +105,25 @@ if __name__ == '__main__':
                         edges.append(Point(x, y))
                         # pixel_data[x, y] = (0, 0, 0, 255)
                     else:
-                        pixel_data[x, y] = (255, 255, 255, 255)
+                        pass
 
             try:
                 edge_path = get_path(edges)
                 chains[sprite_name] = edge_path
                 point = edge_path.pop(0)
-                pixel_data[point.x, point.y] = (255, 0, 0, 255)
+                # pixel_data[point.x, point.y] = (255, 0, 0, 255)
                 for index, point in enumerate(edge_path):
-                    pixel_data[point.x, point.y] = (index * 10 % 150, index * 10 % 150, index * 10 % 150, 255)
+                    pass
+                    # pixel_data[point.x, point.y] = (index * 10 % 150, index * 10 % 150, index * 10 % 150, 255)
             except CustomException as e:
                 print(e)
 
-            # new_img.save("sprites/" + sprite_name + '.png')
-    with open("sprites.json") as json_file:
-        sprite_data = json.load(json_file)
-
-        for sprite_name, sprite_bounding_chain in chains.items():
-            sprite_data['frames'][sprite_name]['boundingPoints'] = sprite_bounding_chain
-
-    json.dump(sprite_data, open("sprites.json", 'w'))
-    print(sprite_data)
+            new_img.save("sprites/" + sprite_name + '.png')
+    # with open("sprites.json") as json_file:
+    #     sprite_data = json.load(json_file)
+    #
+    #     for sprite_name, sprite_bounding_chain in chains.items():
+    #         sprite_data['frames'][sprite_name]['boundingPoints'] = sprite_bounding_chain
+    #
+    # json.dump(sprite_data, open("sprites.json", 'w'))
+    # print(sprite_data)

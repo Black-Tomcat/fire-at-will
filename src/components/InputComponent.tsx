@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
-import GameComponent from "components";
+import { GameComponent } from "components";
 import GameObject from "objects";
 import GameCore from "core/GameCore";
 
-interface ParentType extends GameObject {
-}
+interface ParentType extends GameObject {}
 
-export default class InputComponent<Parent extends ParentType = ParentType> extends GameComponent {
+export default class InputComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
     // private isShowing: boolean;
 
     constructor(parent: Parent) {
@@ -24,10 +23,27 @@ export default class InputComponent<Parent extends ParentType = ParentType> exte
         // return (this.isShowing && this.menuComponent)
     }
 
-    cleanUp(gameCore: GameCore): void {
-    }
+    cleanUp(gameCore: GameCore): void {}
 
     getRenderComponent(): React.ReactElement {
-        return <p style={{color: "#FFF"}}>text</p>;
+        return <BaseComponent />;
     }
 }
+
+const BaseComponent: React.FC = (props: {}) => {
+    const [hidden, setHidden] = useState(false);
+
+    return (
+        <div
+            className={"demo"}
+            style={{
+                // height: 100,
+                // width: 100,
+                visibility: hidden ? "hidden" : "visible"
+            }}
+            augmented-ui="tl-clip br-clip exe"
+        >
+            <p style={{ color: "#FFF", fontFamily: "consolas" }}>This is an emergency! Send help!</p>
+        </div>
+    );
+};

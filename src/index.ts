@@ -1,5 +1,6 @@
 // ENTRY POINT TO PROGRAM
-import GameCore from 'core/GameCore';
+import GameCore from "core/GameCore";
+import "augmented-ui/augmented.css";
 
 let config = {
     debug: true
