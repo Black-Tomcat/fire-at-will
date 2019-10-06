@@ -108,5 +108,7 @@ export default class Spaceship extends GameObject {
 
     cleanUp(gameCore: GameCore): void {
         _.remove(this.fleet.spaceships, item => item === this);
+        // @ts-ignore
+        gameCore.explo(this.pos.x, this.pos.y);
     }
 }

@@ -8,9 +8,11 @@ import App from "../App";
 import "../css/app.css";
 import "semantic-ui-css/semantic.min.css";
 
-import { Application, Loader, LoaderResource, Spritesheet, Texture } from "pixi.js";
+import { Application, Loader, LoaderResource, Spritesheet, Texture, AnimatedSprite } from "pixi.js";
 import spritesheetJSON from "../assets/sprites.json";
 import sprites from "../assets/sprites.png";
+import explosion from "../assets/explosion.png";
+import explosionJSON from "../assets/explosion.json";
 
 import GameComponent, { ComponentsMap, GameComponentName, PhysicsComponent } from "components";
 import GameObject, { getComponentsMap, Bullet, Fleet, Spaceship, FiringPatternType, ShipType } from "objects";
@@ -33,6 +35,8 @@ export default class GameCore {
 
     public pixiTextures: { [propName: string]: Texture & { boundingPoints: [number, number][] } } | null;
     public pixiApp: Application;
+    public explo?: (x: number, y: number) => void;
+
     public readonly objects: {
         Fleet: Fleet[];
         Spaceship: Spaceship[];
@@ -143,24 +147,48 @@ export default class GameCore {
 
         // Loading the sprites into the PIXI loader, then allowing access to
         // them at a class wide scope.
-        this.pixiApp.loader.add("sprites", sprites).load((loader: Loader, resources) => {
-            const spritesheet = new Spritesheet(
-                (resources["sprites"] as LoaderResource).texture.baseTexture,
-                spritesheetJSON
-            );
+        this.pixiApp.loader
+            .add("sprites", sprites)
+            .add("explosion", explosion)
+            .load((loader: Loader, resources) => {
+                const spritesheet = new Spritesheet(
+                    (resources["sprites"] as LoaderResource).texture.baseTexture,
+                    spritesheetJSON
+                );
 
-            spritesheet.parse(sprites => {
-                this.pixiTextures = {};
-                for (let frame in spritesheetJSON.frames) {
-                    this.pixiTextures[frame] = {
-                        ...sprites[frame],
-                        ...((spritesheetJSON.frames as unknown) as any)[frame]
+                spritesheet.parse(sprites => {
+                    this.pixiTextures = {};
+                    for (let frame in spritesheetJSON.frames) {
+                        this.pixiTextures[frame] = {
+                            ...sprites[frame],
+                            ...((spritesheetJSON.frames as unknown) as any)[frame]
+                        };
+                    }
+                });
+
+                const explosionSheet = new Spritesheet(
+                    // @ts-ignore
+                    resources.explosion.texture.baseTexture,
+                    explosionJSON
+                );
+                explosionSheet.parse(() => {});
+
+                this.explo = (x: number, y: number) => {
+                    const animatedExplosion = new AnimatedSprite(explosionSheet.animations.explosion);
+                    animatedExplosion.position.x = x - 100;
+                    animatedExplosion.position.y = y - 100;
+                    animatedExplosion.animationSpeed = 0.2;
+                    // animatedExplosion.visible = false;
+                    animatedExplosion.loop = false;
+                    animatedExplosion.onComplete = () => {
+                        this.pixiApp.stage.removeChild(animatedExplosion);
                     };
-                }
-            });
+                    this.pixiApp.stage.addChild(animatedExplosion);
+                    animatedExplosion.play();
+                };
 
-            loadedCallback();
-        });
+                loadedCallback();
+            });
 
         // Attaching the stage to the main app so rendering can be performed.
         document.body.appendChild(this.pixiApp.view);
