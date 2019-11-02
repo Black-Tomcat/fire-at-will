@@ -1,14 +1,13 @@
-import GameComponent, {PhysicsComponent, XYObj} from "components";
-import GameObject, {Bullet, Spaceship, FiringPattern, ShipType} from "objects";
+import GameComponent, { PhysicsComponent, XYObj } from "components";
+import GameObject, { Bullet, Spaceship, FiringPattern, ShipType } from "objects";
 import GameCore from "core/GameCore";
 
-
 interface ParentType extends GameObject {
-    type: ShipType
-    targetShip?: Spaceship
-    patterns: FiringPattern[]
+    type: ShipType;
+    targetShip?: Spaceship;
+    patterns: FiringPattern[];
     // ammo: string
-    pos: XYObj
+    pos: XYObj;
 }
 
 export default class WeaponsComponent<Parent extends ParentType = ParentType> extends GameComponent<Parent> {
@@ -17,11 +16,11 @@ export default class WeaponsComponent<Parent extends ParentType = ParentType> ex
     }
 
     update(delta: number, gameCore: GameCore) {
-        const {type, targetShip, patterns} = this.parent;
+        const { type, targetShip, patterns } = this.parent;
         // TODO multiple firing solutions on multiple targets, and at different speeds.
 
         for (const pattern of patterns) {
-            pattern.timeSinceLastFired += delta
+            pattern.timeSinceLastFired += delta;
         }
 
         // If there's no target, stop firing all guns.
@@ -38,19 +37,19 @@ export default class WeaponsComponent<Parent extends ParentType = ParentType> ex
         }
 
         let i = 0;
-        for (let pattern of patterns.filter((item) => item.active !== undefined)) {
-            this.__fireGun(pattern, i++, delta, gameCore)
+        for (let pattern of patterns.filter(item => item.active !== undefined)) {
+            this.__fireGun(pattern, i++, delta, gameCore);
         }
     }
 
     __fireGun(firingPattern: FiringPattern, iteration: number, delta: number, gameCore: GameCore) {
         // TODO finish this method with some ammo.
-        const {timeSinceLastFired: lastFired, active} = firingPattern;
-        const {launcherAmount} = firingPattern.firingPatternType;
+        const { timeSinceLastFired: lastFired, active } = firingPattern;
+        const { launcherAmount } = firingPattern.firingPatternType;
 
         firingPattern.timeSinceLastFired += delta;
-        while (firingPattern.timeSinceLastFired > (1000 / firingPattern.firingPatternType.fireRate / launcherAmount)) {
-            firingPattern.timeSinceLastFired -= (1000 / firingPattern.firingPatternType.fireRate / launcherAmount);
+        while (firingPattern.timeSinceLastFired > 1000 / firingPattern.firingPatternType.fireRate / launcherAmount) {
+            firingPattern.timeSinceLastFired -= 1000 / firingPattern.firingPatternType.fireRate / launcherAmount;
             let toTargetVector = PhysicsComponent.getTargetVector(this.parent.pos, (active as Spaceship).pos);
 
             // TODO If x and y are 0, then they will result in NaN.
@@ -60,18 +59,18 @@ export default class WeaponsComponent<Parent extends ParentType = ParentType> ex
             };
 
             let vel = {
-                x: (Math.sin(toTargetVector.x) * 300),
-                y: (Math.sin(toTargetVector.y) * 300)
+                x: Math.sin(toTargetVector.x) * 300,
+                y: Math.sin(toTargetVector.y) * 300
             };
-
 
             gameCore.addGameObject(
                 // @ts-ignore
-                new Bullet(gameCore, {...this.parent.pos, x: this.parent.pos.x - iteration * 5}, vel, this.parent as Spaceship)
-            )
+                new Bullet(gameCore, { ...this.parent.pos, x: this.parent.pos.x - iteration * 5 }, vel, this
+                    .parent as Spaceship)
+            );
             //new Spaceship(gameCore, gameCore.shipTemplates["defensiveBullets"], {...this.parent.pos}, vel, gameCore.Fleet[0]);
         }
     }
 
-    cleanUp(gameCore: GameCore): void {};
+    cleanUp(gameCore: GameCore): void {}
 }

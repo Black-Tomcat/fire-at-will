@@ -8,7 +8,7 @@ import App from "../App";
 import "../css/app.css";
 import "semantic-ui-css/semantic.min.css";
 
-import { Application, Loader, LoaderResource, Spritesheet, Texture, AnimatedSprite } from "pixi.js";
+import { Application, Loader, LoaderResource, Spritesheet, Texture, AnimatedSprite, Sprite } from "pixi.js";
 import spritesheetJSON from "../assets/sprites.json";
 import sprites from "../assets/sprites.png";
 import explosion from "../assets/explosion.png";
@@ -17,6 +17,7 @@ import explosionJSON from "../assets/explosion.json";
 import GameComponent, { ComponentsMap, GameComponentName, PhysicsComponent } from "components";
 import GameObject, { getComponentsMap, Bullet, Fleet, Spaceship, FiringPatternType, ShipType } from "objects";
 import PhysicsCore from "core/PhysicsCore";
+import RenderCore, { Asset, BoundedTexture } from "core/RenderCore";
 
 interface GameCoreConfig {
     debug: boolean;
@@ -33,22 +34,24 @@ interface FiringPatternTemplates {
 export default class GameCore {
     static MS_PER_UPDATE = 1000 / 60;
 
-    public pixiTextures: { [propName: string]: Texture & { boundingPoints: [number, number][] } } | null;
-    public pixiApp: Application;
-    public explo?: (x: number, y: number) => void;
-
     public readonly objects: {
         Fleet: Fleet[];
         Spaceship: Spaceship[];
         Bullet: Bullet[];
     };
+
     private previous: number | null;
     private lag: number;
+
     private readonly components: ComponentsMap;
+
     private physicsCore: PhysicsCore;
+    public readonly renderCore: RenderCore;
+
     private config: GameCoreConfig;
     private frames: number;
     private frames_time: number;
+
     private readonly shipTemplates: null | ShipTemplates;
     private readonly firingPatternTemplates: null | FiringPatternTemplates;
 
@@ -64,13 +67,9 @@ export default class GameCore {
             RenderComponent: [],
             WeaponsComponent: []
         };
-        this.physicsCore = new PhysicsCore();
 
-        this.pixiApp = new Application({
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
-        this.pixiTextures = null;
+        this.physicsCore = new PhysicsCore();
+        this.renderCore = new RenderCore();
 
         // CONFIG OPTIONS
         this.config = {
@@ -118,80 +117,60 @@ export default class GameCore {
         // Initialize a game, currently done statically
         // TODO change this so it fits with a dynamic, potentially file loaded system.
 
-        const gameCallback = () => {
-            this.setupDummyGame();
-            this.previous = new Date().getTime();
-            this.gameLoop();
-        };
+        // Load the game. This is async as of now, since maybe in the future we would want to load from many unique sources at once.
+        // Ie. a file save system, loading textures, sounds, etc.
+        await this.createStage();
+        await this.setupDummyGame();
 
-        const spriteCallback = () => {
-            this.createStage(gameCallback);
-        };
-
-        spriteCallback();
+        this.previous = new Date().getTime();
+        this.gameLoop();
     };
 
-    createStage = (loadedCallback: () => void) => {
-        // Creates a PIXI application that allows for the rendering of sprites.
-        // Also handles the generation of sprites, and frees the resource to be
-        // Used by the spaceship factory.
-        const renderer = this.pixiApp.renderer;
+    createStage = async () => {
+        const spaceshipSprites: Asset = {
+            name: "spaceshipSprites",
+            resourceName: sprites,
+            load: (resources: Partial<Record<string, LoaderResource>>, loader: Loader) => {
+                const textures: Record<string, BoundedTexture> = {};
 
-        renderer.autoResize = true;
-        renderer.view.style.position = "absolute";
-        renderer.view.style.display = "block";
-
-        window.addEventListener("resize", () => {
-            this.pixiApp.renderer.resize(window.innerWidth, window.innerHeight);
-        });
-
-        // Loading the sprites into the PIXI loader, then allowing access to
-        // them at a class wide scope.
-        this.pixiApp.loader
-            .add("sprites", sprites)
-            .add("explosion", explosion)
-            .load((loader: Loader, resources) => {
                 const spritesheet = new Spritesheet(
-                    (resources["sprites"] as LoaderResource).texture.baseTexture,
+                    (resources["spaceshipSprites"] as LoaderResource).texture.baseTexture,
                     spritesheetJSON
                 );
 
-                spritesheet.parse(sprites => {
-                    this.pixiTextures = {};
-                    for (let frame in spritesheetJSON.frames) {
-                        this.pixiTextures[frame] = {
-                            ...sprites[frame],
-                            ...((spritesheetJSON.frames as unknown) as any)[frame]
-                        };
+                spritesheet.parse((spritesheetTextures: { [propName: string]: Texture }) => {
+                    for (const textureName in spritesheetTextures) {
+                        console.log(textureName, spritesheet.data[textureName]);
+                        textures[textureName] = new BoundedTexture(
+                            spritesheetTextures[textureName],
+                            spritesheet.data.frames[textureName].boundingPoints,
+                            spritesheet.data.frames[textureName].sourceSize
+                        );
                     }
                 });
 
+                return { textures };
+            }
+        };
+
+        const explosionAnimation: Asset = {
+            name: "explosionSprites",
+            resourceName: explosion,
+            load: (resources: Partial<Record<string, LoaderResource>>, loader: Loader) => {
                 const explosionSheet = new Spritesheet(
-                    // @ts-ignore
-                    resources.explosion.texture.baseTexture,
+                    (resources["explosionSprites"] as LoaderResource).texture.baseTexture,
                     explosionJSON
                 );
                 explosionSheet.parse(() => {});
 
-                this.explo = (x: number, y: number) => {
-                    const animatedExplosion = new AnimatedSprite(explosionSheet.animations.explosion);
-                    animatedExplosion.position.x = x - 100;
-                    animatedExplosion.position.y = y - 100;
-                    animatedExplosion.animationSpeed = 0.2;
-                    // animatedExplosion.visible = false;
-                    animatedExplosion.loop = false;
-                    animatedExplosion.onComplete = () => {
-                        this.pixiApp.stage.removeChild(animatedExplosion);
-                    };
-                    this.pixiApp.stage.addChild(animatedExplosion);
-                    animatedExplosion.play();
+                return {
+                    textures: explosionSheet.textures,
+                    animations: explosionSheet.animations
                 };
+            }
+        };
 
-                loadedCallback();
-            });
-
-        // Attaching the stage to the main app so rendering can be performed.
-        document.body.appendChild(this.pixiApp.view);
+        await this.renderCore.initialize([spaceshipSprites, explosionAnimation]);
     };
 
     setupDummyGame = () => {
@@ -289,6 +268,10 @@ export default class GameCore {
     updateGameState = (delta: number) => {
         for (let physics of this.components.PhysicsComponent) {
             physics.update(delta, this);
+        }
+
+        for (let physics of this.components.PhysicsComponent) {
+            physics.handleCollisions(delta, this);
         }
 
         for (let ai of this.components.AIComponent) {

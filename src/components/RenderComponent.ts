@@ -1,11 +1,10 @@
-import {Sprite, Texture} from "pixi.js";
+import { Sprite, Texture } from "pixi.js";
 
-import {GameComponent, XYObj} from "components";
+import { GameComponent, XYObj } from "components";
 import GameObject from "objects";
 import GameCore from "core/GameCore";
 
-
-interface ParentType extends GameObject{
+interface ParentType extends GameObject {
     pos: XYObj;
     rotation: number;
 }
@@ -15,33 +14,27 @@ export default class RenderComponent<Parent extends ParentType = ParentType> ext
     private active: boolean;
     private visible: boolean;
 
-    constructor(parent: Parent, spriteTexture: Texture){
+    constructor(parent: Parent, spriteTexture: Texture) {
         super(parent, "RenderComponent");
         this.sprite = new Sprite(spriteTexture);
 
         this.sprite.anchor.set(0.5, 0.5);
-        this.sprite.position.set(
-            this.parent.pos.x,
-            this.parent.pos.y
-        );
+        this.sprite.position.set(this.parent.pos.x, this.parent.pos.y);
 
         this.active = false;
-        this.visible = true
+        this.visible = true;
     }
 
     update(delta: number, gameCore: GameCore) {
-        this.sprite.position.set(
-            this.parent.pos.x,
-            this.parent.pos.y
-        );
-        this.sprite.rotation = (this.parent.rotation - 270) / 180 * Math.PI ;
+        this.sprite.position.set(this.parent.pos.x, this.parent.pos.y);
+        this.sprite.rotation = ((this.parent.rotation - 270) / 180) * Math.PI;
 
         if (this.visible && !this.active) {
             this.active = true;
-            gameCore.pixiApp.stage.addChild(this.sprite)
+            gameCore.renderCore.app.stage.addChild(this.sprite);
         } else if (!this.visible && this.active) {
             this.active = false;
-            gameCore.pixiApp.stage.removeChild(this.sprite)
+            gameCore.renderCore.app.stage.removeChild(this.sprite);
         }
     }
 
@@ -50,6 +43,6 @@ export default class RenderComponent<Parent extends ParentType = ParentType> ext
     };
 
     cleanUp(gameCore: GameCore): void {
-        gameCore.pixiApp.stage.removeChild(this.sprite);
+        gameCore.renderCore.app.stage.removeChild(this.sprite);
     }
 }

@@ -1,18 +1,22 @@
 // ./src/components/gameComponent.js
 
-import {AIComponent, InputComponent, PhysicsComponent, RenderComponent, WeaponsComponent} from 'components';
-import {GameObject} from "objects";
+import { AIComponent, InputComponent, PhysicsComponent, RenderComponent, WeaponsComponent } from "components";
+import { GameObject } from "objects";
 import GameCore from "core/GameCore";
 
-
-export type GameComponentName = "PhysicsComponent" | "AIComponent" | "InputComponent" | "RenderComponent" | "WeaponsComponent"
+export type GameComponentName =
+    | "PhysicsComponent"
+    | "AIComponent"
+    | "InputComponent"
+    | "RenderComponent"
+    | "WeaponsComponent";
 
 export interface ComponentsMap {
     PhysicsComponent: PhysicsComponent[];
     AIComponent: AIComponent[];
-    InputComponent: InputComponent[],
-    RenderComponent: RenderComponent[],
-    WeaponsComponent: WeaponsComponent[]
+    InputComponent: InputComponent[];
+    RenderComponent: RenderComponent[];
+    WeaponsComponent: WeaponsComponent[];
 }
 
 export default abstract class GameComponent<Parent extends GameObject = GameObject> {
@@ -22,14 +26,14 @@ export default abstract class GameComponent<Parent extends GameObject = GameObje
      * the GameCore calls, and updates the state relative to that component for
      * the parent object. */
     public readonly parent: Parent;
-    public readonly name: (GameComponentName);
+    public readonly name: GameComponentName;
 
     protected constructor(parent: Parent, name: GameComponentName) {
         this.parent = parent;
-        this.name = name
-    };
+        this.name = name;
+    }
 
-    abstract update(delta: number, gameCore?: GameCore): void;
+    abstract update(delta: number, gameCore?: GameCore): void | { toDelete?: true };
 
     abstract cleanUp(gameCore: GameCore): void;
 }

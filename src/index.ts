@@ -7,4 +7,4 @@ let config = {
 };
 
 const gameCore = new GameCore(config);
-gameCore.start();
+gameCore.start().then(() => console.log("Game started!"));

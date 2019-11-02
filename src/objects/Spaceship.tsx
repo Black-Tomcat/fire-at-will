@@ -13,6 +13,7 @@ import GameComponent, {
 import GameObject, { Fleet } from "objects";
 import GameCore from "core/GameCore";
 import _ from "lodash";
+import { BoundedTexture } from "../core/RenderCore";
 
 export interface ShipType {
     readonly aiType: Stances;
@@ -60,8 +61,8 @@ export default class Spaceship extends GameObject {
 
     constructor(gameCore: GameCore, type: ShipType, pos: XYObj, vel: XYObj, fleet: Fleet) {
         super(gameCore, "Spaceship");
-        // @ts-ignore
-        const texture = gameCore.pixiTextures[type.sprite];
+
+        const texture = gameCore.renderCore.textures[type.sprite] as BoundedTexture;
 
         // SPACESHIP DATA
         this.type = type; // This contains all the data for the ship's class/weapons/etc.
@@ -88,9 +89,8 @@ export default class Spaceship extends GameObject {
         // SPACESHIP COMPONENTS
         // merges the default components with their overriding components.
 
-        // @ts-ignore
         this.physicsComponent = new PhysicsComponent<Spaceship>(this, texture.boundingPoints, texture.sourceSize);
-        this.renderComponent = new RenderComponent<Spaceship>(this, texture);
+        this.renderComponent = new RenderComponent<Spaceship>(this, texture.texture);
         this.inputComponent = new InputComponent<Spaceship>(this);
         this.aiComponent = new AIComponent<Spaceship>(this);
         this.weaponsComponent = new WeaponsComponent<Spaceship>(this);
@@ -108,7 +108,5 @@ export default class Spaceship extends GameObject {
 
     cleanUp(gameCore: GameCore): void {
         _.remove(this.fleet.spaceships, item => item === this);
-        // @ts-ignore
-        gameCore.explo(this.pos.x, this.pos.y);
     }
 }

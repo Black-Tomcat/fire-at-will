@@ -1,6 +1,7 @@
 import GameComponent, { PhysicsComponent, RenderComponent, XYObj } from "components";
 import GameObject, { GameObjectComponents, ObjectName, Spaceship } from "objects";
 import GameCore from "core/GameCore";
+import { BoundedTexture } from "../core/RenderCore";
 
 export default class Bullet extends GameObject {
     public pos: { x: number; y: number };
@@ -30,19 +31,13 @@ export default class Bullet extends GameObject {
 
         this.spawner = spawner;
 
-        this.physicsComponent = new PhysicsComponent<Bullet>(
-            this,
-            (gameCore.pixiTextures as { [propName: string]: { boundingPoints: [number, number][] } })[
-                "bullet"
-            ].boundingPoints,
-            (gameCore.pixiTextures as { [propName: string]: { boundingPoints: [number, number][] } })[
-                "bullet"
-                // @ts-ignore
-            ].sourceSize
-        );
+        let texture = gameCore.renderCore.textures["bullet"] as BoundedTexture;
+        this.physicsComponent = new PhysicsComponent<Bullet>(this, texture.boundingPoints, texture.sourceSize);
 
-        // @ts-ignore
-        this.renderComponent = new RenderComponent(this, gameCore.pixiTextures["bullet"]);
+        this.renderComponent = new RenderComponent(
+            this,
+            (gameCore.renderCore.textures["bullet"] as BoundedTexture).texture
+        );
     }
 
     get components(): GameComponent[] {
