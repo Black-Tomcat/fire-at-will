@@ -141,8 +141,6 @@ export default class Spaceship extends GameObject {
 
         const translation = this.physicsComponent.currentTranslation;
 
-        const point = _.sample(translation) as [number, number];
-
         for (let i = 0; i < 3; i++) {
             const point = _.sample(translation) as [number, number];
             const [sprite, start] = explosion(
@@ -155,7 +153,7 @@ export default class Spaceship extends GameObject {
                           const [last, start] = explosion(this.pos.x, this.pos.y, 1, 0.2, () => {});
                           start();
 
-                          this.components.map(component => cleanUpComponent(component));
+                          super.cleanUp(gameCore, cleanUpComponent);
                       }
                     : () => {}
             );
