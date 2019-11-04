@@ -14,6 +14,7 @@ import GameObject, { Fleet } from "objects";
 import GameCore from "core/GameCore";
 import _ from "lodash";
 import { BoundedTexture } from "../core/RenderCore";
+import { AnimatedSprite } from "pixi.js";
 
 export interface ShipType {
     readonly aiType: Stances;
@@ -106,7 +107,64 @@ export default class Spaceship extends GameObject {
         ];
     }
 
-    cleanUp(gameCore: GameCore): void {
+    cleanUp(gameCore: GameCore, cleanUpComponent: (component: GameComponent) => void): void {
         _.remove(this.fleet.spaceships, item => item === this);
+
+        const explosion = (
+            x: number,
+            y: number,
+            size: number,
+            animationSpeed: number,
+            onCompleteCallback: () => void
+        ): [AnimatedSprite, () => void] => {
+            const sprite = gameCore.renderCore.createNewAnimatedSprite("explosion");
+
+            sprite.anchor.set(0.5, 0.5);
+            sprite.animationSpeed = animationSpeed;
+            sprite.loop = false;
+            sprite.scale.set(size, size);
+            sprite.position.set(x, y);
+
+            sprite.onComplete = () => {
+                gameCore.renderCore.stage.removeChild(sprite);
+                onCompleteCallback();
+            };
+
+            return [
+                sprite,
+                () => {
+                    gameCore.renderCore.stage.addChild(sprite);
+                    sprite.play();
+                }
+            ];
+        };
+
+        const translation = this.physicsComponent.currentTranslation;
+
+        const point = _.sample(translation) as [number, number];
+
+        for (let i = 0; i < 3; i++) {
+            const point = _.sample(translation) as [number, number];
+            const [sprite, start] = explosion(
+                point[0],
+                point[1],
+                0.2,
+                0.4,
+                i === 2
+                    ? () => {
+                          const [last, start] = explosion(this.pos.x, this.pos.y, 1, 0.2, () => {});
+                          start();
+
+                          this.components.map(component => cleanUpComponent(component));
+                      }
+                    : () => {}
+            );
+
+            if (i != 0) {
+                setTimeout(() => start(), i * 200);
+            } else {
+                start();
+            }
+        }
     }
 }

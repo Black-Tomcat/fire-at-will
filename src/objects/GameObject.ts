@@ -1,9 +1,15 @@
-import _ from 'lodash';
+import _ from "lodash";
 
-import GameComponent, {ComponentsMap, AIComponent, InputComponent, PhysicsComponent, RenderComponent, WeaponsComponent} from "components";
-import {Bullet, Fleet, Spaceship} from "objects";
+import GameComponent, {
+    ComponentsMap,
+    AIComponent,
+    InputComponent,
+    PhysicsComponent,
+    RenderComponent,
+    WeaponsComponent
+} from "components";
+import { Bullet, Fleet, Spaceship } from "objects";
 import GameCore from "core/GameCore";
-
 
 export interface GameObjectComponents {
     physicsComponent?: typeof PhysicsComponent;
@@ -13,21 +19,20 @@ export interface GameObjectComponents {
     weaponsComponent?: typeof WeaponsComponent;
 }
 
-export type ObjectName = "Spaceship" | "Bullet" | "Fleet"
+export type ObjectName = "Spaceship" | "Bullet" | "Fleet";
 export type GameObjects = {
-    Spaceship: Spaceship[]
-    Bullet: Bullet[]
-    Fleet: Fleet[]
-}
+    Spaceship: Spaceship[];
+    Bullet: Bullet[];
+    Fleet: Fleet[];
+};
 
 export const getComponentsMap = (items: GameComponent | GameComponent[]): Partial<ComponentsMap> => {
     if (!Array.isArray(items)) {
         items = [items];
     }
 
-    return _.groupBy((items as GameComponent[]), (item: GameComponent) => item.name)
+    return _.groupBy(items as GameComponent[], (item: GameComponent) => item.name);
 };
-
 
 export default abstract class GameObject {
     public readonly name: ObjectName;
@@ -38,5 +43,7 @@ export default abstract class GameObject {
 
     abstract get components(): GameComponent[];
 
-    abstract cleanUp(gameCore: GameCore): void
+    public cleanUp(gameCore: GameCore, cleanUpComponent: (component: GameComponent) => void): void {
+        this.components.map(component => cleanUpComponent(component));
+    }
 }

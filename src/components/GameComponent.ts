@@ -19,6 +19,10 @@ export interface ComponentsMap {
     WeaponsComponent: WeaponsComponent[];
 }
 
+export interface UpdateResponse {
+    toDelete: boolean;
+}
+
 export default abstract class GameComponent<Parent extends GameObject = GameObject> {
     /* The core of a game component is that each should have a reference to the
      * parent object (spaceship, etc.), and that is where they gather all of
@@ -33,7 +37,7 @@ export default abstract class GameComponent<Parent extends GameObject = GameObje
         this.name = name;
     }
 
-    abstract update(delta: number, gameCore?: GameCore): void | { toDelete?: true };
+    abstract update(delta: number, gameCore?: GameCore): UpdateResponse | void;
 
     abstract cleanUp(gameCore: GameCore): void;
 }

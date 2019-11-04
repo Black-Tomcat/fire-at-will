@@ -1,6 +1,9 @@
-import { GameComponent } from "components";
-import GameObject, { Bullet } from "objects";
+import { GameComponent, UpdateResponse } from "components";
+import GameObject, { Bullet, Spaceship } from "objects";
 import GameCore from "core/GameCore";
+
+import { intersection } from "greiner-hormann";
+import _ from "lodash";
 
 export interface XYObj {
     x: number;
@@ -19,14 +22,28 @@ export default class PhysicsComponent<Parent extends ParentType = ParentType> ex
     static MAX_ACCELERATION = 100; // per second.
     static MAX_ROTATION = 20; // Degrees per second.
     static BOUNDING_BOX = 10;
-    public readonly boundingBox: [number, number][];
 
+    public readonly boundingBox: [number, number][];
     public readonly size: { w: number; h: number };
+
+    private _currentTranslation?: [number, number][];
+    private readonly collisionFilter: (item: PhysicsComponent) => boolean;
+
     constructor(parent: Parent, boundingBox: [number, number][], size: { w: number; h: number }) {
         super(parent, "PhysicsComponent");
 
-        this.boundingBox = boundingBox;
+        this.boundingBox = boundingBox.map(item => [item[0] - size.w / 2, item[1] - size.h / 2]);
         this.size = size;
+
+        this.collisionFilter =
+            this.parent instanceof Bullet
+                ? (item: PhysicsComponent) =>
+                      !(item.parent instanceof Bullet || item.parent === ((this.parent as unknown) as Bullet).spawner)
+                : (item: PhysicsComponent) =>
+                      !(
+                          item.parent instanceof Bullet &&
+                          ((this.parent as unknown) as Spaceship) === item.parent.spawner
+                      );
     }
 
     static getTargetVector = (currentPos: XYObj, targetPos: XYObj) => {
@@ -36,7 +53,23 @@ export default class PhysicsComponent<Parent extends ParentType = ParentType> ex
         };
     };
 
+    get currentTranslation() {
+        if (this._currentTranslation !== undefined) {
+            return this._currentTranslation;
+        }
+
+        let rads = Math.round(((((this.parent.rotation + 90) / 180) * Math.PI) % (2 * Math.PI)) * 10) / 10;
+        this._currentTranslation = this.boundingBox.map(item => [
+            item[0] * Math.cos(rads) - item[1] * Math.sin(rads) + this.parent.pos.x,
+            item[1] * Math.cos(rads) + item[0] * Math.sin(rads) + this.parent.pos.y
+        ]);
+
+        return this._currentTranslation;
+    }
+
     update(delta: number, gameCore: GameCore) {
+        this._currentTranslation = undefined;
+
         let { pos, vel } = this.parent;
 
         if (this.parent.targetPos != undefined) {
@@ -130,17 +163,31 @@ export default class PhysicsComponent<Parent extends ParentType = ParentType> ex
 
     cleanUp(gameCore: GameCore): void {}
 
-    hitByBullet(): Parent | undefined {
-        this.parent.hitPoints -= 1;
-
-        return this.parent.hitPoints === 0 ? this.parent : undefined;
-    }
-
-    handleCollisions(delta: number, gameCore: GameCore) {
+    handleCollisions(delta: number, gameCore: GameCore): UpdateResponse {
         // This will be executed immediately after all items are in their updated positions.
-        // @ts-ignore
-        if (this.parent instanceof Bullet) {
-            return;
+        // Collide into self, update state, return true if needs to delete at the end. C:
+        let toDelete = false;
+
+        // TODO optimize
+        const others: PhysicsComponent[] = gameCore.components.PhysicsComponent.filter(this.collisionFilter);
+
+        for (const other of others) {
+            if (intersection(this.currentTranslation, other.currentTranslation)) {
+                // There is a collision
+                // Deal damage to self.
+                if (this.parent instanceof Bullet) {
+                    return { toDelete: true };
+                } else {
+                    this.parent.hitPoints -= 1;
+                    if (this.parent.hitPoints == 0) {
+                        toDelete = true;
+                    }
+                }
+            }
         }
+
+        return {
+            toDelete
+        };
     }
 }

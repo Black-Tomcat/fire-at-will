@@ -43,6 +43,4 @@ export default class Bullet extends GameObject {
     get components(): GameComponent[] {
         return [this.physicsComponent, this.renderComponent];
     }
-
-    cleanUp(gameCore: GameCore): void {}
 }

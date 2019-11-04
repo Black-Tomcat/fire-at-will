@@ -8,15 +8,16 @@ import App from "../App";
 import "../css/app.css";
 import "semantic-ui-css/semantic.min.css";
 
-import { Application, Loader, LoaderResource, Spritesheet, Texture, AnimatedSprite, Sprite } from "pixi.js";
+import _ from "lodash";
+
+import { Loader, LoaderResource, Spritesheet, Texture } from "pixi.js";
 import spritesheetJSON from "../assets/sprites.json";
 import sprites from "../assets/sprites.png";
 import explosion from "../assets/explosion.png";
 import explosionJSON from "../assets/explosion.json";
 
-import GameComponent, { ComponentsMap, GameComponentName, PhysicsComponent } from "components";
-import GameObject, { getComponentsMap, Bullet, Fleet, Spaceship, FiringPatternType, ShipType } from "objects";
-import PhysicsCore from "core/PhysicsCore";
+import { ComponentsMap, GameComponent, GameComponentName } from "components";
+import GameObject, { Bullet, FiringPatternType, Fleet, getComponentsMap, ShipType, Spaceship } from "objects";
 import RenderCore, { Asset, BoundedTexture } from "core/RenderCore";
 
 interface GameCoreConfig {
@@ -39,26 +40,24 @@ export default class GameCore {
         Spaceship: Spaceship[];
         Bullet: Bullet[];
     };
-
+    public readonly components: ComponentsMap;
+    public readonly renderCore: RenderCore;
     private previous: number | null;
     private lag: number;
-
-    private readonly components: ComponentsMap;
-
-    private physicsCore: PhysicsCore;
-    public readonly renderCore: RenderCore;
-
     private config: GameCoreConfig;
     private frames: number;
     private frames_time: number;
 
     private readonly shipTemplates: null | ShipTemplates;
     private readonly firingPatternTemplates: null | FiringPatternTemplates;
+    private toDeleteComponents: GameComponent[];
 
     constructor(options: GameCoreConfig) {
         // GAME LOOP FIELD
         this.previous = null;
         this.lag = 0.0;
+
+        this.toDeleteComponents = [];
 
         this.components = {
             PhysicsComponent: [],
@@ -68,7 +67,6 @@ export default class GameCore {
             WeaponsComponent: []
         };
 
-        this.physicsCore = new PhysicsCore();
         this.renderCore = new RenderCore();
 
         // CONFIG OPTIONS
@@ -113,7 +111,7 @@ export default class GameCore {
         };
     }
 
-    start = async () => {
+    public async start() {
         // Initialize a game, currently done statically
         // TODO change this so it fits with a dynamic, potentially file loaded system.
 
@@ -124,9 +122,23 @@ export default class GameCore {
 
         this.previous = new Date().getTime();
         this.gameLoop();
+    }
+
+    public addGameObject(object: GameObject) {
+        // @ts-ignore Since object can't be specified further
+        this.objects[object.name].push(object);
+        for (const [type, items] of Object.entries(getComponentsMap(object.components))) {
+            // @ts-ignore since sub child type can't be specified.
+            this.components[type as GameComponentName].push(...items);
+        }
+    }
+
+    public deleteComponent = (component: GameComponent) => {
+        component.cleanUp(this);
+        this.toDeleteComponents.push(component);
     };
 
-    createStage = async () => {
+    private async createStage() {
         const spaceshipSprites: Asset = {
             name: "spaceshipSprites",
             resourceName: sprites,
@@ -171,9 +183,9 @@ export default class GameCore {
         };
 
         await this.renderCore.initialize([spaceshipSprites, explosionAnimation]);
-    };
+    }
 
-    setupDummyGame = () => {
+    private setupDummyGame() {
         // Create Fleet
         this.addGameObject(new Fleet(this, true));
         this.addGameObject(new Fleet(this));
@@ -198,9 +210,9 @@ export default class GameCore {
         );
         this.addGameObject(friendlySpaceship);
         this.objects.Fleet[1].addNewSpaceship(friendlySpaceship);
-    };
+    }
 
-    gameLoop = () => {
+    private gameLoop = () => {
         // The game loop. Exactly what it says it is.
         // Timing mechanism updates the game state once every 1/60th of a second
         // and in the meantime, renders the rest of the game as fast as possible.
@@ -219,27 +231,6 @@ export default class GameCore {
             this.lag -= GameCore.MS_PER_UPDATE;
             this.updateGameState(GameCore.MS_PER_UPDATE);
             this.renderGraphics(this.lag);
-
-            const toDelete: GameObject[] = this.physicsCore.detectCollisions(
-                this.components.PhysicsComponent.filter((item: PhysicsComponent) => !(item.parent instanceof Bullet)),
-                this.components.PhysicsComponent.filter((item: PhysicsComponent) => item.parent instanceof Bullet)
-            );
-
-            for (const [type, items] of Object.entries(
-                getComponentsMap(toDelete.map(item => item.components).flat())
-            )) {
-                // @ts-ignore
-                const removedComponents: GameComponent[] = _.remove(this.components[type], item =>
-                    (items as GameComponent[]).includes(item)
-                );
-                for (const removedComponent of removedComponents) {
-                    removedComponent.cleanUp(this);
-                }
-            }
-
-            for (const gameObject of toDelete) {
-                gameObject.cleanUp(this);
-            }
         }
 
         // Render the graphics with an idea of how much time has passed.
@@ -265,14 +256,33 @@ export default class GameCore {
         requestAnimationFrame(this.gameLoop); // TODO find appropriate numbers.
     };
 
-    updateGameState = (delta: number) => {
+    private updateGameState(delta: number) {
         for (let physics of this.components.PhysicsComponent) {
             physics.update(delta, this);
         }
 
+        const toDelete: GameObject[] = [];
+
         for (let physics of this.components.PhysicsComponent) {
-            physics.handleCollisions(delta, this);
+            const res = physics.handleCollisions(delta, this);
+            if (res.toDelete) {
+                toDelete.push(physics.parent);
+            }
         }
+
+        for (const object of toDelete) {
+            object.cleanUp(this, this.deleteComponent);
+        }
+
+        const toDeleteComponentsMap = getComponentsMap(this.toDeleteComponents);
+
+        for (const key in toDeleteComponentsMap) {
+            const removed = _.remove(this.components[key as GameComponentName] as GameComponent[], item =>
+                (toDeleteComponentsMap[key as GameComponentName] as GameComponent[]).includes(item)
+            );
+        }
+
+        this.toDeleteComponents = [];
 
         for (let ai of this.components.AIComponent) {
             ai.update(delta, this);
@@ -281,20 +291,11 @@ export default class GameCore {
         for (let weapons of this.components.WeaponsComponent) {
             weapons.update(delta, this);
         }
-    };
+    }
 
-    renderGraphics = (delta: number) => {
+    private renderGraphics(delta: number) {
         for (let render of this.components.RenderComponent) {
             render.update(delta, this);
         }
-    };
-
-    addGameObject = (object: GameObject) => {
-        // @ts-ignore Since object can't be specified further
-        this.objects[object.name].push(object);
-        for (const [type, items] of Object.entries(getComponentsMap(object.components))) {
-            // @ts-ignore since sub child type can't be specified.
-            this.components[type as GameComponentName].push(...items);
-        }
-    };
+    }
 }

@@ -55,6 +55,10 @@ export default class RenderCore {
         return this.app.renderer;
     }
 
+    public get stage() {
+        return this.app.stage;
+    }
+
     public get view() {
         return this.app.view;
     }
