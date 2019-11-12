@@ -2,11 +2,11 @@
 // This contains the framework for the spaceship object and the relevant factory
 
 import GameComponent, {
+    AIAction,
     AIComponent,
     InputComponent,
     PhysicsComponent,
     RenderComponent,
-    Stances,
     WeaponsComponent,
     XYObj
 } from "components";
@@ -16,8 +16,16 @@ import _ from "lodash";
 import { BoundedTexture } from "../core/RenderCore";
 import { AnimatedSprite } from "pixi.js";
 
+export interface Stance {
+    conditions?: {
+        hitPoints?: [number, number]; // When hitpoints [0 - 1] are in this range, then condition satisfied
+    };
+    action: AIAction;
+}
+
 export interface ShipType {
-    readonly aiType: Stances;
+    // These are evaluated top down. If all conditions are met, then execute the action.
+    readonly aiType: Stance[];
     readonly hitPoints: number;
     readonly maxVel: number;
     readonly sprite: string;

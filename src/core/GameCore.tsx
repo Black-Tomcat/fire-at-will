@@ -89,14 +89,28 @@ export default class GameCore {
         };
         this.shipTemplates = {
             defensiveBullets: {
-                aiType: "DEFENSIVE",
+                aiType: [
+                    {
+                        conditions: {
+                            hitPoints: [0, 0.5]
+                        },
+                        action: "RETREAT"
+                    },
+                    {
+                        action: "CIRCLE"
+                    }
+                ],
                 hitPoints: 50,
                 maxVel: 50,
                 sprite: "sprite_23",
                 patterns: [[5, this.firingPatternTemplates["patternName"]]]
             },
             aggressiveRammer: {
-                aiType: "AGGRESSIVE",
+                aiType: [
+                    {
+                        action: "RAM"
+                    }
+                ],
                 hitPoints: 100,
                 maxVel: 100,
                 sprite: "sprite_19",
